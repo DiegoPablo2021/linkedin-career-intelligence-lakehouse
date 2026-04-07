@@ -3,6 +3,7 @@ import streamlit as st
 
 from linkedin_career_intelligence.streamlit_utils import (
     apply_app_theme,
+    is_demo_mode,
     render_card,
     render_question,
     run_query,
@@ -204,9 +205,13 @@ with right:
         st.markdown(f"**{primary_contact_label}:** [{primary_contact_url}]({primary_contact_url})")
     if portfolio_website:
         st.markdown(f"**Website:** [{portfolio_website}]({portfolio_website})")
-    st.markdown("**GitHub:** [github.com/DiegoPablo2021](https://github.com/DiegoPablo2021/)")
-    st.markdown("**LinkedIn:** [linkedin.com/feed](https://www.linkedin.com/feed/)")
-    st.markdown("**E-mail:** diegopmenezes@hotmail.com")
+    if is_demo_mode():
+        st.markdown("**GitHub:** [github.com/DiegoPablo2021](https://github.com/DiegoPablo2021/)")
+        st.caption(ui_text("Contatos diretos ficam ocultos na demo pública.", "Direct contact details stay hidden in the public demo."))
+    else:
+        st.markdown("**GitHub:** [github.com/DiegoPablo2021](https://github.com/DiegoPablo2021/)")
+        st.markdown("**LinkedIn:** [linkedin.com/feed](https://www.linkedin.com/feed/)")
+        st.markdown("**E-mail:** diegopmenezes@hotmail.com")
 
 st.divider()
 st.markdown(f"## {ui_text('Sinais centrais do perfil', 'Core profile signals')}")

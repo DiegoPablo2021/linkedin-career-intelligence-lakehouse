@@ -128,6 +128,13 @@ Execute o comando a partir da pasta `linkedin_career_intelligence_dbt/`.
 streamlit run apps\Home.py
 ```
 
+Se quiser testar explicitamente o modo público com a base sanitizada:
+
+```powershell
+$env:LINKEDIN_DB_PATH='demo/linkedin_career_intelligence_demo.duckdb'
+streamlit run apps\Home.py
+```
+
 ### 5. Rodar tudo de ponta a ponta
 
 ```powershell
@@ -198,6 +205,28 @@ Camada final para consumo do app:
 - `dbt build` para modelos e testes analíticos
 - `sqlfluff` configurado para DuckDB + dbt
 - `inspect_warehouse.py` para inspecionar o banco local sem precisar abrir o arquivo binário `.duckdb`
+
+## Deploy público seguro
+
+Para publicar o app sem expor o export privado do LinkedIn:
+
+1. mantenha a base real em `warehouse/linkedin_career_intelligence.duckdb`
+2. gere a base pública em `demo/linkedin_career_intelligence_demo.duckdb`
+3. publique o app usando apenas os arquivos versionados do repositório
+
+Comando para regenerar a base demo:
+
+```powershell
+$env:PYTHONPATH='.'
+.\.venv\Scripts\python.exe scripts\utils\create_public_demo_db.py
+```
+
+Resolução do banco no app:
+- `LINKEDIN_DB_PATH`, quando configurado explicitamente
+- base privada em `warehouse/`, quando disponível
+- base demo em `demo/`, quando a privada não existir no ambiente
+
+Isso permite desenvolvimento local com dados reais e deploy público com dados anonimizados.
 
 ## Roadmap de publicação
 

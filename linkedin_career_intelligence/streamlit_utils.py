@@ -13,6 +13,10 @@ def get_db_path() -> str:
     return str(get_settings().db_path)
 
 
+def is_demo_mode() -> bool:
+    return get_settings().is_demo_db
+
+
 def run_query(query: str) -> pd.DataFrame:
     conn = connect_duckdb(read_only=True)
     df = conn.execute(query).fetchdf()
@@ -140,6 +144,17 @@ def apply_app_theme() -> None:
         margin-top: 0.35rem;
         line-height: 1.45;
     }
+
+    .cci-demo-banner {
+        border-radius: 16px;
+        padding: 0.9rem 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(124, 196, 255, 0.28);
+        background: linear-gradient(135deg, rgba(78, 161, 255, 0.16), rgba(38, 198, 218, 0.09));
+        color: var(--cci-text-primary);
+        font-size: 0.94rem;
+        line-height: 1.5;
+    }
     </style>
     """
     css = (
@@ -151,6 +166,16 @@ def apply_app_theme() -> None:
         .replace("__GRID_COLOR__", grid_color)
     )
     st.markdown(css, unsafe_allow_html=True)
+    if is_demo_mode():
+        st.markdown(
+            """
+            <div class="cci-demo-banner">
+                <strong>Public demo mode:</strong> this deployment uses a sanitized DuckDB file with anonymized names,
+                masked contact channels and generic narrative text. The local project continues to use the private source database.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def render_card(title: str, value: str, body: str, tone: str = "blue") -> None:
