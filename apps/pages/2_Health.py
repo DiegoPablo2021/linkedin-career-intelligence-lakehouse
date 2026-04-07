@@ -1,6 +1,14 @@
+from pathlib import Path
+import sys
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
+
+PROJECT_FILE = Path(__file__).resolve()
+PROJECT_ROOT = next(parent for parent in PROJECT_FILE.parents if (parent / "linkedin_career_intelligence").exists())
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from linkedin_career_intelligence.streamlit_utils import (
     apply_app_theme,

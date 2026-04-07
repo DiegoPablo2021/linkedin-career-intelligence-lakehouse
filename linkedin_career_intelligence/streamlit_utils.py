@@ -163,16 +163,18 @@ def apply_app_theme() -> None:
 
     .cci-demo-banner {
         border-radius: 16px;
-        padding: 1rem 1.15rem;
+        padding: 1.05rem 1.25rem;
         margin-bottom: 1.2rem;
         border: 1px solid rgba(124, 196, 255, 0.28);
         background: linear-gradient(135deg, rgba(78, 161, 255, 0.16), rgba(38, 198, 218, 0.09));
         color: var(--cci-text-primary);
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         line-height: 1.6;
         white-space: normal;
-        overflow-wrap: anywhere;
-        word-break: break-word;
+        overflow-wrap: normal;
+        word-break: normal;
+        width: 100%;
+        box-sizing: border-box;
     }
     </style>
     """
@@ -189,8 +191,7 @@ def apply_app_theme() -> None:
         st.markdown(
             """
             <div class="cci-demo-banner">
-                <strong>Public demo mode:</strong> this deployment uses a sanitized DuckDB file with anonymized names,
-                masked contact channels, and generic narrative text. The local project continues to use the private source database.
+                <strong>Public demo:</strong> sanitized data, masked contacts, and generic narrative text. Private source data stays local.
             </div>
             """,
             unsafe_allow_html=True,
