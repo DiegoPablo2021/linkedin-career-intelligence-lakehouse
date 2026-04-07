@@ -191,7 +191,7 @@ def apply_app_theme() -> None:
         st.markdown(
             """
             <div class="cci-demo-banner">
-                <strong>Public demo:</strong> sanitized data, masked contacts, and generic narrative text. Private source data stays local.
+                <strong>Demo pública:</strong> dados sanitizados, contatos mascarados e texto narrativo genérico. Os dados privados de origem permanecem no ambiente local.
             </div>
             """,
             unsafe_allow_html=True,
