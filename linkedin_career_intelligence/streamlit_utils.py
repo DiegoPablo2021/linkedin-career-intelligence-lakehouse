@@ -28,6 +28,22 @@ def ui_text(pt_text: str, en_text: str) -> str:
     return pt_text
 
 
+def safe_int(value: object, default: int = 0) -> int:
+    if value is None or pd.isna(value):
+        return default
+    return int(value)
+
+
+def safe_float(value: object, default: float = 0.0) -> float:
+    if value is None or pd.isna(value):
+        return default
+    return float(value)
+
+
+def safe_sum(*values: object) -> int:
+    return sum(safe_int(value) for value in values)
+
+
 def apply_app_theme() -> None:
     bg_primary = "#0E1117"
     bg_secondary = "#111827"
@@ -147,13 +163,16 @@ def apply_app_theme() -> None:
 
     .cci-demo-banner {
         border-radius: 16px;
-        padding: 0.9rem 1rem;
-        margin-bottom: 1rem;
+        padding: 1rem 1.15rem;
+        margin-bottom: 1.2rem;
         border: 1px solid rgba(124, 196, 255, 0.28);
         background: linear-gradient(135deg, rgba(78, 161, 255, 0.16), rgba(38, 198, 218, 0.09));
         color: var(--cci-text-primary);
-        font-size: 0.94rem;
-        line-height: 1.5;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
     </style>
     """
@@ -171,7 +190,7 @@ def apply_app_theme() -> None:
             """
             <div class="cci-demo-banner">
                 <strong>Public demo mode:</strong> this deployment uses a sanitized DuckDB file with anonymized names,
-                masked contact channels and generic narrative text. The local project continues to use the private source database.
+                masked contact channels, and generic narrative text. The local project continues to use the private source database.
             </div>
             """,
             unsafe_allow_html=True,

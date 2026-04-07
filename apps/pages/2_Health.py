@@ -7,6 +7,8 @@ from linkedin_career_intelligence.streamlit_utils import (
     render_card,
     render_question,
     run_query,
+    safe_int,
+    safe_sum,
     style_matplotlib,
 )
 
@@ -89,28 +91,28 @@ if df_health.empty:
     st.stop()
 
 health = df_health.iloc[0]
-total_inventory_files = int(health["total_inventory_files"])
-successful_reads = int(health["successful_reads"])
-failed_reads = int(health["failed_reads"])
+total_inventory_files = safe_int(health["total_inventory_files"])
+successful_reads = safe_int(health["successful_reads"])
+failed_reads = safe_int(health["failed_reads"])
 latest_inventory_timestamp = str(health["latest_inventory_timestamp"])
-coverage_total = int(
-    health["total_connections"]
-    + health["total_positions"]
-    + health["total_education_records"]
-    + health["total_certifications"]
-    + health["total_languages"]
-    + health["total_endorsements"]
-    + health["total_company_follows"]
-    + health["total_recommendations"]
-    + health["total_skills"]
-    + health["total_invitations"]
-    + health["total_events"]
-    + health["total_learning_records"]
-    + health["total_job_applications"]
-    + health["total_saved_job_alerts"]
-    + health["total_volunteering"]
-    + health["total_email_addresses"]
-    + health["total_phone_numbers"]
+coverage_total = safe_sum(
+    health["total_connections"],
+    health["total_positions"],
+    health["total_education_records"],
+    health["total_certifications"],
+    health["total_languages"],
+    health["total_endorsements"],
+    health["total_company_follows"],
+    health["total_recommendations"],
+    health["total_skills"],
+    health["total_invitations"],
+    health["total_events"],
+    health["total_learning_records"],
+    health["total_job_applications"],
+    health["total_saved_job_alerts"],
+    health["total_volunteering"],
+    health["total_email_addresses"],
+    health["total_phone_numbers"],
 )
 
 inventory_export = (
@@ -139,8 +141,8 @@ if not inventory_export.empty:
         with export_cols[idx]:
             render_card(
                 f"Export {str(row['export_type']).title()}",
-                f"{int(row['total_arquivos'])} arquivos",
-                f"{int(row['total_linhas']):,} linhas processadas com 100% de sucesso.".replace(",", "."),
+                f"{safe_int(row['total_arquivos'])} arquivos",
+                f"{safe_int(row['total_linhas']):,} linhas processadas com 100% de sucesso.".replace(",", "."),
                 tone=tones[idx % len(tones)],
             )
 
@@ -186,7 +188,7 @@ with domain_left:
     top_domain = df_domains.iloc[0]
     render_question(
         "Qual domínio lidera o volume atual?",
-        f"{top_domain['domain_name']} com {int(top_domain['total_records'])} registros.",
+        f"{top_domain['domain_name']} com {safe_int(top_domain['total_records'])} registros.",
         "Esse volume cria uma base mais forte para análises de networking e relacionamento profissional.",
     )
 with domain_right:

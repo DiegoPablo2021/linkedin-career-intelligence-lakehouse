@@ -6,6 +6,8 @@ from linkedin_career_intelligence.streamlit_utils import (
     apply_app_theme,
     apply_straight_xticks,
     run_query,
+    safe_float,
+    safe_int,
     style_matplotlib,
 )
 
@@ -125,11 +127,11 @@ if not df_detail.empty:
 if not df_overview.empty:
     overview_row = df_overview.iloc[0]
 
-    total_positions = int(overview_row["total_positions"])
-    current_positions = int(overview_row["current_positions"])
-    unique_companies = int(overview_row["unique_companies"])
-    unique_titles = int(overview_row["unique_titles"])
-    avg_duration_months = round(float(overview_row["avg_duration_months"]), 2)
+    total_positions = safe_int(overview_row["total_positions"])
+    current_positions = safe_int(overview_row["current_positions"])
+    unique_companies = safe_int(overview_row["unique_companies"])
+    unique_titles = safe_int(overview_row["unique_titles"])
+    avg_duration_months = round(safe_float(overview_row["avg_duration_months"]), 2)
 else:
     total_positions = 0
     current_positions = 0
@@ -214,18 +216,22 @@ st.dataframe(df_detail, width="stretch")
 st.markdown("## Leitura inicial dos dados")
 
 if not df_progression.empty:
-    best_idx = int(df_progression["total_positions_started"].idxmax())
-    best_row = df_progression.iloc[best_idx]
+    progression_for_insights = df_progression.dropna(subset=["total_positions_started"]).copy()
+    if progression_for_insights.empty:
+        st.info("Ainda não há dados suficientes para gerar insights automáticos.")
+    else:
+        best_idx = int(progression_for_insights["total_positions_started"].idxmax())
+        best_row = progression_for_insights.loc[best_idx]
 
-    best_period = str(best_row["start_year_month"])
-    best_total = int(best_row["total_positions_started"])
+        best_period = str(best_row["start_year_month"])
+        best_total = safe_int(best_row["total_positions_started"])
 
-    st.info(
-        f"O período com maior volume de posições iniciadas foi **{best_period}**, com **{best_total}** posição(ões)."
-    )
+        st.info(
+            f"O período com maior volume de posições iniciadas foi **{best_period}**, com **{best_total}** posição(ões)."
+        )
 
-    st.info(
-        f"A duração média das posições no histórico analisado é de **{avg_duration_months} meses**."
-    )
+        st.info(
+            f"A duração média das posições no histórico analisado é de **{avg_duration_months} meses**."
+        )
 else:
     st.info("Ainda não há dados suficientes para gerar insights automáticos.")

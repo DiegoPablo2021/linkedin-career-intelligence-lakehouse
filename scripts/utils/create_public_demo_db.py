@@ -73,6 +73,21 @@ def is_person_column(column_name: str) -> bool:
     return False
 
 
+def is_textual_series(series: pd.Series) -> bool:
+    if not (pd.api.types.is_object_dtype(series) or pd.api.types.is_string_dtype(series)):
+        return False
+
+    non_null = series.dropna()
+    if non_null.empty:
+        return True
+
+    numeric_candidate = pd.to_numeric(non_null, errors="coerce")
+    if numeric_candidate.notna().all():
+        return False
+
+    return True
+
+
 def coarsen_datetime_columns(df: pd.DataFrame) -> pd.DataFrame:
     for column in df.columns:
         normalized = column.lower()
@@ -106,6 +121,9 @@ def sanitize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
         if normalized in NULL_COLUMNS:
             sanitized[column] = pd.Series([pd.NA] * len(sanitized), dtype="string")
+            continue
+
+        if not is_textual_series(series):
             continue
 
         if is_person_column(normalized):

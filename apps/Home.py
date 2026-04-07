@@ -16,6 +16,8 @@ from linkedin_career_intelligence.streamlit_utils import (
     render_card,
     render_question,
     run_query,
+    safe_float,
+    safe_int,
     ui_text,
 )
 
@@ -98,8 +100,10 @@ st.markdown(
 if not df_home.empty:
     home = df_home.iloc[0]
     success_rate = 0.0
-    if int(home["total_inventory_files"]) > 0:
-        success_rate = (float(home["successful_reads"]) / float(home["total_inventory_files"])) * 100
+    total_inventory_files = safe_int(home["total_inventory_files"])
+    successful_reads = safe_int(home["successful_reads"])
+    if total_inventory_files > 0:
+        success_rate = (successful_reads / total_inventory_files) * 100
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
@@ -112,21 +116,21 @@ if not df_home.empty:
     with c2:
         render_card(
             ui_text("Escala da rede", "Network scale"),
-            f"{int(home['total_connections']):,}".replace(",", "."),
+            f"{safe_int(home['total_connections']):,}".replace(",", "."),
             ui_text("Base robusta de conexões para leitura de networking e posicionamento.", "Robust connection base for networking and positioning analysis."),
             tone="teal",
         )
     with c3:
         render_card(
             ui_text("Capacidade demonstrada", "Demonstrated capability"),
-            f"{int(home['total_skills'])}",
+            f"{safe_int(home['total_skills'])}",
             ui_text("Skills já tratadas no pipeline para leitura de competências sinalizadas.", "Skills already processed by the pipeline for capability analysis."),
             tone="violet",
         )
     with c4:
         render_card(
             ui_text("Movimento de carreira", "Career movement"),
-            f"{int(home['total_job_applications'])}",
+            f"{safe_int(home['total_job_applications'])}",
             ui_text("Candidaturas carregadas para analisar interesse, volume e foco profissional.", "Applications loaded to analyze intent, volume and professional focus."),
             tone="gold",
         )
@@ -136,16 +140,16 @@ if not df_connections.empty and not df_profile.empty and not df_home.empty:
     profile = df_profile.iloc[0]
     home = df_home.iloc[0]
 
-    total_connections = int(connections["total_connections"] or 0)
-    email_connections = int(connections["connections_with_email"] or 0)
-    unique_companies = int(connections["unique_companies"] or 0)
-    unique_positions = int(connections["unique_positions"] or 0)
+    total_connections = safe_int(connections["total_connections"])
+    email_connections = safe_int(connections["connections_with_email"])
+    unique_companies = safe_int(connections["unique_companies"])
+    unique_positions = safe_int(connections["unique_positions"])
     email_share = round((email_connections / total_connections) * 100, 1) if total_connections else 0.0
     profile_track = format_profile_track(profile["profile_track"])
     summary_category = format_summary_category(profile["summary_size_category"])
-    summary_length = int(profile["summary_length"] or 0)
-    learning_total = int(home["total_learning_records"] or 0)
-    invitations_total = int(home["total_invitations"] or 0)
+    summary_length = safe_int(profile["summary_length"])
+    learning_total = safe_int(home["total_learning_records"])
+    invitations_total = safe_int(home["total_invitations"])
 
     st.markdown(f"## {ui_text('Perguntas de negócio', 'Business questions')}")
     q1, q2 = st.columns(2)
