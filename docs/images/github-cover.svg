@@ -1,28 +1,80 @@
 <svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="630" fill="#0E1117"/>
-  <rect x="32" y="32" width="1136" height="566" rx="28" fill="#111827" stroke="#233044" stroke-width="2"/>
-  <text x="84" y="138" fill="#8FA9C7" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="3">DATA ENGINEERING CASE</text>
-  <text x="84" y="230" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="800">LinkedIn Career Intelligence</text>
-  <text x="84" y="298" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="800">Lakehouse</text>
-  <text x="84" y="360" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="26">Python ingestion • DuckDB • dbt • Streamlit • profiling • portfolio-ready analytics app</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#08111F"/>
+      <stop offset="1" stop-color="#101B2D"/>
+    </linearGradient>
+    <linearGradient id="cyanGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#57E6FF"/>
+      <stop offset="1" stop-color="#1FB6FF"/>
+    </linearGradient>
+    <linearGradient id="pinkGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FF64D6"/>
+      <stop offset="1" stop-color="#C96BFF"/>
+    </linearGradient>
+    <linearGradient id="goldGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFE082"/>
+      <stop offset="1" stop-color="#FFB347"/>
+    </linearGradient>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
 
-  <rect x="84" y="418" width="238" height="104" rx="20" fill="#132033" stroke="#4EA1FF" stroke-width="2"/>
-  <text x="114" y="460" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">91 arquivos lidos</text>
-  <text x="114" y="494" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Inventário técnico com 100%</text>
-  <text x="114" y="518" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">de sucesso na leitura</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="24" y="24" width="1152" height="582" rx="28" fill="#0B1321" stroke="#22324A" stroke-width="2"/>
 
-  <rect x="350" y="418" width="238" height="104" rx="20" fill="#103038" stroke="#26C6DA" stroke-width="2"/>
-  <text x="380" y="460" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">9.697 conexões</text>
-  <text x="380" y="494" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Rede profissional convertida</text>
-  <text x="380" y="518" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">em leitura analítica</text>
+  <text x="68" y="88" fill="#8EA5C4" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="2.5">DATA ENGINEERING + ANALYTICS ENGINEERING CASE</text>
+  <text x="68" y="154" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="44" font-weight="800">LinkedIn Career Intelligence Lakehouse</text>
+  <text x="68" y="196" fill="#A9BCD6" font-family="Segoe UI, Arial, sans-serif" font-size="22">Stack real do projeto: Python, DuckDB, dbt, Streamlit, Pytest e SQLFluff</text>
 
-  <rect x="616" y="418" width="238" height="104" rx="20" fill="#201A3A" stroke="#7C9CF5" stroke-width="2"/>
-  <text x="646" y="460" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">14+ domínios</text>
-  <text x="646" y="494" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Career, Profile, Learning,</text>
-  <text x="646" y="518" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Skills, Jobs e mais</text>
+  <rect x="74" y="252" width="205" height="168" rx="24" fill="#0F1B2E" stroke="#46CFFF" stroke-width="2"/>
+  <text x="104" y="298" fill="#58E7FF" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">RAW EXPORT</text>
+  <text x="104" y="332" fill="#DBF7FF" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800">LinkedIn CSV</text>
+  <text x="104" y="365" fill="#A7CBE0" font-family="Segoe UI, Arial, sans-serif" font-size="18">basic + complete</text>
+  <text x="104" y="392" fill="#A7CBE0" font-family="Segoe UI, Arial, sans-serif" font-size="18">arquivos heterogêneos</text>
 
-  <rect x="882" y="418" width="238" height="104" rx="20" fill="#3B2A0D" stroke="#F2C14E" stroke-width="2"/>
-  <text x="912" y="460" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Deploy-ready case</text>
-  <text x="912" y="494" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Estrutura pronta para GitHub,</text>
-  <text x="912" y="518" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">portfolio e apresentação</text>
+  <rect x="343" y="226" width="236" height="222" rx="28" fill="#121A33" stroke="#FF64D6" stroke-width="2"/>
+  <text x="375" y="272" fill="#FF8BE3" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">INGESTION LAYER</text>
+  <text x="375" y="314" fill="#FFF0FA" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="800">Python</text>
+  <text x="375" y="348" fill="#D9BCE8" font-family="Segoe UI, Arial, sans-serif" font-size="17">parsing, normalização,</text>
+  <text x="375" y="373" fill="#D9BCE8" font-family="Segoe UI, Arial, sans-serif" font-size="17">limpeza e escrita bronze</text>
+
+  <circle cx="503" cy="404" r="22" fill="#1B2242" stroke="#FF64D6" stroke-width="2"/>
+  <text x="479" y="411" fill="#FFD8F3" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">ETL</text>
+
+  <rect x="643" y="226" width="220" height="222" rx="28" fill="#0F2133" stroke="#57E6FF" stroke-width="2"/>
+  <text x="677" y="272" fill="#8DF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">WAREHOUSE</text>
+  <text x="677" y="314" fill="#E9FCFF" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="800">DuckDB</text>
+  <text x="677" y="348" fill="#B8D7E4" font-family="Segoe UI, Arial, sans-serif" font-size="18">schema bronze</text>
+  <text x="677" y="374" fill="#B8D7E4" font-family="Segoe UI, Arial, sans-serif" font-size="18">lakehouse local</text>
+
+  <rect x="927" y="226" width="204" height="222" rx="28" fill="#231B12" stroke="#FFCF66" stroke-width="2"/>
+  <text x="959" y="272" fill="#FFE5A8" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">CONSUMPTION</text>
+  <text x="959" y="314" fill="#FFF7E4" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="800">Streamlit</text>
+  <text x="959" y="348" fill="#E4CFAD" font-family="Segoe UI, Arial, sans-serif" font-size="17">KPIs, charts,</text>
+  <text x="959" y="373" fill="#E4CFAD" font-family="Segoe UI, Arial, sans-serif" font-size="17">narrativa executiva</text>
+
+  <path d="M279 336H343" stroke="url(#cyanGlow)" stroke-width="6" stroke-linecap="round" filter="url(#softGlow)"/>
+  <path d="M579 336H643" stroke="url(#pinkGlow)" stroke-width="6" stroke-linecap="round" filter="url(#softGlow)"/>
+  <path d="M863 336H927" stroke="url(#goldGlow)" stroke-width="6" stroke-linecap="round" filter="url(#softGlow)"/>
+
+  <rect x="430" y="488" width="336" height="90" rx="22" fill="#161F37" stroke="#8B9CF7" stroke-width="2"/>
+  <text x="462" y="525" fill="#BEC8FF" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">dbt analytical layer</text>
+  <text x="462" y="555" fill="#D6DCF8" font-family="Segoe UI, Arial, sans-serif" font-size="17">staging -> intermediate -> marts</text>
+
+  <path d="M753 448C753 475 735 488 712 488" stroke="#8B9CF7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M753 448C753 475 771 488 794 488" stroke="#8B9CF7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M712 488H643" stroke="#8B9CF7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M794 488H927" stroke="#8B9CF7" stroke-width="4" stroke-linecap="round"/>
+
+  <rect x="74" y="488" width="286" height="90" rx="22" fill="#10263B" stroke="#46CFFF" stroke-width="2"/>
+  <text x="104" y="525" fill="#DFF8FF" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Quality + Ops</text>
+  <text x="104" y="555" fill="#B8D7E4" font-family="Segoe UI, Arial, sans-serif" font-size="16">Pytest, SQLFluff, inventory, health</text>
+
+  <text x="883" y="544" fill="#7F93AF" font-family="Segoe UI, Arial, sans-serif" font-size="18">portfolio-ready analytics app</text>
 </svg>

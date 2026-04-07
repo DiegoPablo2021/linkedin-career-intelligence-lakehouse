@@ -6,7 +6,7 @@
   <text x="70" y="206" fill="#C6D4E5" font-family="Segoe UI, Arial, sans-serif" font-size="24">Leitura executiva do posicionamento principal no LinkedIn</text>
   <rect x="70" y="236" width="1140" height="92" rx="20" fill="url(#paint0_linear)" stroke="#2A3B55"/>
   <text x="98" y="276" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Diego Pablo</text>
-  <text x="98" y="306" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="16">PCD | Analista de Dados | SQL | Python | Power BI | Databricks | Azure</text>
+  <text x="98" y="306" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="15">PCD | Analista de Dados | SQL | Python | DuckDB | dbt | Streamlit</text>
 
   <rect x="70" y="356" width="258" height="112" rx="20" fill="#132033" stroke="#4EA1FF"/>
   <rect x="350" y="356" width="258" height="112" rx="20" fill="#103038" stroke="#26C6DA"/>
@@ -18,17 +18,21 @@
   <text x="374" y="438" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800">Analista</text>
   <text x="654" y="394" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Força do summary</text>
   <text x="654" y="438" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800">2023</text>
-  <text x="934" y="394" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Categoria do summary</text>
+  <text x="934" y="394" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Categoria do summary</text>
   <text x="934" y="438" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800">Longa</text>
 
   <rect x="70" y="506" width="560" height="182" rx="20" fill="#101825" stroke="#243549"/>
   <rect x="650" y="506" width="560" height="182" rx="20" fill="#101825" stroke="#243549"/>
-  <text x="94" y="544" fill="#7CC4FF" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="1">COMO O PERFIL SE POSICIONA PROFISSIONALMENTE?</text>
-  <text x="94" y="584" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Trilha predominante: Analista</text>
-  <text x="94" y="618" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="16">Headline, summary e stack reforçam um posicionamento técnico e analítico.</text>
-  <text x="674" y="544" fill="#7CC4FF" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="1">O SUMMARY SUSTENTA UMA PROPOSTA DE VALOR CLARA?</text>
-  <text x="674" y="584" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Sim. Summary longo e consistente</text>
-  <text x="674" y="618" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="16">Texto suficiente para contextualizar entregas, tecnologias e diferenciais profissionais.</text>
+  <text x="94" y="544" fill="#7CC4FF" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="0.8">COMO O PERFIL SE POSICIONA PROFISSIONALMENTE?</text>
+  <text x="94" y="580" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Trilha predominante:</text>
+  <text x="94" y="608" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Analista</text>
+  <text x="94" y="640" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="14">Headline, summary e stack reforçam</text>
+  <text x="94" y="662" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="14">um posicionamento técnico e analítico.</text>
+  <text x="674" y="544" fill="#7CC4FF" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="0.8">O SUMMARY SUSTENTA UMA PROPOSTA DE VALOR CLARA?</text>
+  <text x="674" y="580" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Sim. Summary longo</text>
+  <text x="674" y="608" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">e consistente</text>
+  <text x="674" y="640" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="14">Texto suficiente para contextualizar entregas,</text>
+  <text x="674" y="662" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="14">tecnologias e diferenciais profissionais.</text>
 
   <defs>
     <linearGradient id="paint0_linear" x1="70" y1="236" x2="1210" y2="328" gradientUnits="userSpaceOnUse">
