@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: stg_company_follows
+    description: "Empresas seguidas tratadas"
+
+    columns:
+      - name: organization
+        data_tests:
+          - not_null

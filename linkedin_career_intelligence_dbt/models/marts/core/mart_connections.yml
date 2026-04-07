@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: mart_connections_summary
+    description: "Mart analítico com evolução temporal das conexões do LinkedIn e indicadores de networking."
+
+    columns:
+      - name: connection_year
+        description: "Ano da conexão."
+        data_tests:
+          - not_null
+
+      - name: connection_month
+        description: "Mês da conexão."
+        data_tests:
+          - not_null
+
+      - name: connection_year_month
+        description: "Ano e mês da conexão (YYYY-MM)."
+        data_tests:
+          - not_null
+
+      - name: total_connections
+        description: "Total de conexões no período."
+        data_tests:
+          - not_null
+
+      - name: connections_with_email
+        description: "Total de conexões que possuem e-mail."
+
+      - name: unique_companies
+        description: "Quantidade de empresas únicas no período."
+
+      - name: unique_positions
+        description: "Quantidade de cargos únicos no período."

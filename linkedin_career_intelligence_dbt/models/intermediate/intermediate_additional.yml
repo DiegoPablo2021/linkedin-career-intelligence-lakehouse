@@ -1,0 +1,65 @@
+version: 2
+
+models:
+  - name: int_skills_enriched
+    columns:
+      - name: skill_name
+        data_tests:
+          - not_null
+      - name: skill_name_clean
+        data_tests:
+          - not_null
+      - name: skill_category
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [analytics, programming, cloud_data, soft_skills, other]
+
+  - name: int_saved_job_alerts_enriched
+    columns:
+      - name: saved_search_id
+        data_tests:
+          - not_null
+
+  - name: int_volunteering_enriched
+    columns:
+      - name: company_name
+        data_tests:
+          - not_null
+      - name: role
+        data_tests:
+          - not_null
+
+  - name: int_invitations_enriched
+    columns:
+      - name: sender_name
+        data_tests:
+          - not_null
+      - name: recipient_name
+        data_tests:
+          - not_null
+      - name: direction
+        data_tests:
+          - not_null
+
+  - name: int_events_enriched
+    columns:
+      - name: event_name
+        data_tests:
+          - not_null
+
+  - name: int_learning_enriched
+    columns:
+      - name: content_title
+        data_tests:
+          - not_null
+
+  - name: int_job_applications_enriched
+    columns:
+      - name: company_name
+        data_tests:
+          - not_null
+      - name: job_title
+        data_tests:
+          - not_null

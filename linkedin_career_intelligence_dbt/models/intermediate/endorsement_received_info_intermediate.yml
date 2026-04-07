@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: int_endorsement_received_info_enriched
+    description: "Endossos recebidos enriquecidos com nome completo e agrupamento de status"
+
+    columns:
+      - name: skill_name_clean
+        data_tests:
+          - not_null
+
+      - name: endorsement_status_group
+        data_tests:
+          - not_null

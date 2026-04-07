@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: stg_connections
+    description: "Camada staging das conexões do LinkedIn, derivada da tabela bronze.connections."
+
+    columns:
+      - name: first_name
+        description: "Primeiro nome da conexão."
+
+      - name: last_name
+        description: "Sobrenome da conexão."
+
+      - name: full_name
+        description: "Nome completo da conexão."
+
+      - name: profile_url
+        description: "URL do perfil da conexão."
+
+      - name: email_address
+        description: "E-mail da conexão, quando disponível."
+
+      - name: company
+        description: "Empresa associada à conexão."
+
+      - name: position
+        description: "Cargo associado à conexão."
+
+      - name: connected_on
+        description: "Data em que a conexão foi adicionada no LinkedIn."
+        data_tests:
+          - not_null

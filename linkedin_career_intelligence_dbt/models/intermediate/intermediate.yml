@@ -1,0 +1,81 @@
+version: 2
+
+models:
+  - name: int_file_inventory_enriched
+    description: "Camada intermediate que enriquece o inventário técnico com classificações analíticas de volume, leitura e categoria de domínio."
+
+    columns:
+      - name: export_name
+        description: "Nome do pacote de exportação."
+
+      - name: export_type
+        description: "Tipo do export."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - basic
+                  - complete
+
+      - name: folder_name
+        description: "Pasta lógica onde o arquivo foi encontrado."
+
+      - name: file_name
+        description: "Nome do arquivo CSV."
+        data_tests:
+          - not_null
+
+      - name: file_stem
+        description: "Nome do arquivo sem extensão."
+
+      - name: row_count
+        description: "Quantidade de linhas do arquivo."
+
+      - name: column_count
+        description: "Quantidade de colunas do arquivo."
+
+      - name: file_size_kb
+        description: "Tamanho do arquivo em KB."
+
+      - name: volume_categoria
+        description: "Classificação de volume do arquivo com base no row_count."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - erro_leitura
+                  - vazio
+                  - muito_pequeno
+                  - pequeno
+                  - medio
+                  - grande
+
+      - name: status_leitura
+        description: "Classificação binária do status de leitura."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - ok
+                  - erro
+
+      - name: categoria_dado
+        description: "Categoria analítica do arquivo baseada na pasta lógica."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - job_data
+                  - core_profile
+                  - services
+                  - trust
+                  - outros
+
+      - name: inventory_timestamp
+        description: "Timestamp da execução do inventário."
+        data_tests:
+          - not_null

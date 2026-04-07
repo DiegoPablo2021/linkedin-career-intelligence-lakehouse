@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_recommendations_received
+    description: "Recomendações recebidas tratadas"
+
+    columns:
+      - name: recommendation_text
+        data_tests:
+          - not_null
+
+      - name: visibility
+        data_tests:
+          - not_null

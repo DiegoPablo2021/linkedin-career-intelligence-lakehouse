@@ -1,0 +1,9 @@
+[sqlfluff]
+dialect = duckdb
+templater = dbt
+max_line_length = 120
+exclude_rules = ST06,RF04,LT12,AM03,AM06,LT08,ST02,LT01
+
+[sqlfluff:templater:dbt]
+project_dir = ./linkedin_career_intelligence_dbt
+profiles_dir = ./profiles

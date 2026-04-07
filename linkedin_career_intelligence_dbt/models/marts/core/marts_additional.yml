@@ -1,0 +1,74 @@
+version: 2
+
+models:
+  - name: mart_skills_summary
+    columns:
+      - name: skill_category
+        data_tests:
+          - not_null
+      - name: total_skills
+        data_tests:
+          - not_null
+
+  - name: mart_saved_job_alerts_summary
+    columns:
+      - name: alert_frequency
+        data_tests:
+          - not_null
+      - name: total_alerts
+        data_tests:
+          - not_null
+
+  - name: mart_volunteering_summary
+    columns:
+      - name: cause_clean
+        data_tests:
+          - not_null
+      - name: total_volunteering_roles
+        data_tests:
+          - not_null
+
+  - name: mart_invitations_summary
+    columns:
+      - name: direction
+        data_tests:
+          - not_null
+      - name: total_invitations
+        data_tests:
+          - not_null
+
+  - name: mart_events_summary
+    columns:
+      - name: status
+        data_tests:
+          - not_null
+      - name: total_events
+        data_tests:
+          - not_null
+
+  - name: mart_learning_summary
+    columns:
+      - name: content_type_clean
+        data_tests:
+          - not_null
+      - name: total_contents
+        data_tests:
+          - not_null
+
+  - name: mart_job_applications_summary
+    columns:
+      - name: job_family
+        data_tests:
+          - not_null
+      - name: total_applications
+        data_tests:
+          - not_null
+
+  - name: mart_contact_account_summary
+    columns:
+      - name: total_email_addresses
+        data_tests:
+          - not_null
+      - name: total_phone_numbers
+        data_tests:
+          - not_null

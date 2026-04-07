@@ -1,0 +1,62 @@
+<svg width="1600" height="980" viewBox="0 0 1600 980" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="980" fill="#0E1117"/>
+  <rect x="40" y="40" width="1520" height="900" rx="28" fill="#111827" stroke="#233044" stroke-width="2"/>
+  <text x="90" y="105" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="700">LinkedIn Career Intelligence Lakehouse</text>
+  <text x="90" y="145" fill="#93A4BD" font-family="Segoe UI, Arial, sans-serif" font-size="20">Fluxo end-to-end do dado bruto até o app publicado</text>
+
+  <rect x="90" y="210" width="220" height="120" rx="18" fill="#132033" stroke="#4EA1FF" stroke-width="2"/>
+  <text x="120" y="250" fill="#E6F0FF" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">1. Raw Export</text>
+  <text x="120" y="287" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">CSV do LinkedIn</text>
+  <text x="120" y="314" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">basic + complete</text>
+
+  <rect x="370" y="210" width="280" height="120" rx="18" fill="#15283D" stroke="#4EA1FF" stroke-width="2"/>
+  <text x="392" y="248" fill="#E6F0FF" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="700">2. Python Ingestion</text>
+  <text x="392" y="287" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">normalização, parsing</text>
+  <text x="392" y="314" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">limpeza e escrita bronze</text>
+
+  <rect x="680" y="210" width="230" height="120" rx="18" fill="#17324A" stroke="#4EA1FF" stroke-width="2"/>
+  <text x="710" y="250" fill="#E6F0FF" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">3. DuckDB</text>
+  <text x="710" y="287" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">warehouse local</text>
+  <text x="710" y="314" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">schema bronze</text>
+
+  <rect x="970" y="210" width="220" height="120" rx="18" fill="#1A3A52" stroke="#4EA1FF" stroke-width="2"/>
+  <text x="1000" y="250" fill="#E6F0FF" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">4. dbt Staging</text>
+  <text x="1000" y="287" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">casts, trim, schema</text>
+  <text x="1000" y="314" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">`stg_*`</text>
+
+  <rect x="1250" y="210" width="220" height="120" rx="18" fill="#1F4660" stroke="#4EA1FF" stroke-width="2"/>
+  <text x="1280" y="250" fill="#E6F0FF" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">5. dbt Core</text>
+  <text x="1280" y="287" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">`int_*` + `mart_*`</text>
+  <text x="1280" y="314" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="18">regras analíticas</text>
+
+  <path d="M310 270H370" stroke="#4EA1FF" stroke-width="4"/>
+  <path d="M650 270H680" stroke="#4EA1FF" stroke-width="4"/>
+  <path d="M910 270H970" stroke="#4EA1FF" stroke-width="4"/>
+  <path d="M1190 270H1250" stroke="#4EA1FF" stroke-width="4"/>
+
+  <rect x="160" y="430" width="1280" height="210" rx="24" fill="#0F1A29" stroke="#2A3B55" stroke-width="2"/>
+  <text x="200" y="485" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="700">6. Analytical Domains Delivered</text>
+  <text x="200" y="530" fill="#C6D4E5" font-family="Segoe UI, Arial, sans-serif" font-size="22">Connections • Career • Education • Certifications • Languages • Profile • Endorsements • Company Follows</text>
+  <text x="200" y="570" fill="#C6D4E5" font-family="Segoe UI, Arial, sans-serif" font-size="22">Recommendations • Skills • Invitations • Events • Volunteering • Learning • Job Applications • Saved Job Alerts</text>
+  <text x="200" y="610" fill="#C6D4E5" font-family="Segoe UI, Arial, sans-serif" font-size="22">File Inventory • Pipeline Health</text>
+
+  <rect x="160" y="700" width="360" height="170" rx="20" fill="#162132" stroke="#3D567A" stroke-width="2"/>
+  <text x="195" y="748" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700">7. Streamlit App</text>
+  <text x="195" y="790" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="20">páginas por domínio</text>
+  <text x="195" y="820" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="20">Health + narrativas analíticas</text>
+
+  <rect x="620" y="700" width="360" height="170" rx="20" fill="#182839" stroke="#3D567A" stroke-width="2"/>
+  <text x="655" y="748" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700">8. Quality Layer</text>
+  <text x="655" y="790" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="20">pytest • dbt build • sqlfluff</text>
+  <text x="655" y="820" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="20">inventário técnico e health page</text>
+
+  <rect x="1080" y="700" width="360" height="170" rx="20" fill="#1A2D3E" stroke="#3D567A" stroke-width="2"/>
+  <text x="1115" y="748" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700">9. Publish Layer</text>
+  <text x="1115" y="790" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="20">GitHub repository</text>
+  <text x="1115" y="820" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="20">portfolio case • Streamlit deploy</text>
+
+  <path d="M520 785H620" stroke="#4EA1FF" stroke-width="4"/>
+  <path d="M980 785H1080" stroke="#4EA1FF" stroke-width="4"/>
+
+  <text x="90" y="918" fill="#7F93AF" font-family="Segoe UI, Arial, sans-serif" font-size="18">Repository structure, analytical coverage and publication flow consolidated for GitHub and portfolio use.</text>
+</svg>

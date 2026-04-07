@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: stg_skills
+    columns:
+      - name: skill_name
+        data_tests:
+          - not_null
+
+  - name: stg_phone_numbers
+    columns:
+      - name: phone_number
+        data_tests:
+          - not_null
+
+  - name: stg_email_addresses
+    columns:
+      - name: email_address
+        data_tests:
+          - not_null
+
+  - name: stg_saved_job_alerts
+    columns:
+      - name: saved_search_id
+        data_tests:
+          - not_null
+
+  - name: stg_volunteering
+    columns:
+      - name: company_name
+        data_tests:
+          - not_null
+      - name: role
+        data_tests:
+          - not_null
+
+  - name: stg_invitations
+    columns:
+      - name: sender_name
+        data_tests:
+          - not_null
+      - name: recipient_name
+        data_tests:
+          - not_null
+      - name: direction
+        data_tests:
+          - not_null
+
+  - name: stg_events
+    columns:
+      - name: event_name
+        data_tests:
+          - not_null
+
+  - name: stg_learning
+    columns:
+      - name: content_title
+        data_tests:
+          - not_null
+
+  - name: stg_job_applications
+    columns:
+      - name: company_name
+        data_tests:
+          - not_null
+      - name: job_title
+        data_tests:
+          - not_null

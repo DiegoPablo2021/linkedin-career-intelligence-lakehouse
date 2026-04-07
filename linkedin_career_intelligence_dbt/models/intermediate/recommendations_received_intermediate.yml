@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: int_recommendations_received_enriched
+    description: "Recomendações recebidas enriquecidas com métricas de texto"
+
+    columns:
+      - name: recommender_name
+        data_tests:
+          - not_null
+
+      - name: text_length
+        data_tests:
+          - not_null

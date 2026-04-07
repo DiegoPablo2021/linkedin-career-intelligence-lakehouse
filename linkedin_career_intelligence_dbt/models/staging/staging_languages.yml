@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: stg_languages
+    description: "Camada staging dos idiomas do LinkedIn, derivada da tabela bronze.languages."
+
+    columns:
+      - name: name
+        description: "Nome do idioma."
+        data_tests:
+          - not_null
+
+      - name: proficiency
+        description: "Nível de proficiência do idioma."
+        data_tests:
+          - not_null

@@ -1,0 +1,397 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: "Camada bronze carregada no DuckDB a partir dos exports do LinkedIn."
+    schema: bronze
+
+    tables:
+      - name: file_inventory
+        description: "Inventário técnico dos arquivos CSV encontrados nos exports Basic e Complete do LinkedIn."
+
+        columns:
+          - name: export_name
+            description: "Nome do pacote de exportação de origem."
+            data_tests:
+              - not_null
+
+          - name: export_type
+            description: "Tipo do export: basic ou complete."
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values:
+                      - basic
+                      - complete
+
+          - name: relative_path
+            description: "Caminho relativo do arquivo dentro da estrutura do export."
+
+          - name: file_name
+            description: "Nome do arquivo CSV."
+            data_tests:
+              - not_null
+
+          - name: file_stem
+            description: "Nome do arquivo sem extensão."
+
+          - name: folder_name
+            description: "Pasta lógica onde o arquivo foi encontrado."
+
+          - name: file_size_bytes
+            description: "Tamanho do arquivo em bytes."
+
+          - name: file_size_kb
+            description: "Tamanho do arquivo em kilobytes."
+
+          - name: row_count
+            description: "Quantidade de linhas lidas no arquivo."
+
+          - name: column_count
+            description: "Quantidade de colunas detectadas."
+
+          - name: column_names
+            description: "Lista serializada com os nomes das colunas."
+
+          - name: detected_encoding
+            description: "Encoding utilizado na leitura do arquivo."
+
+          - name: read_success
+            description: "Indicador de sucesso na leitura do arquivo."
+
+          - name: error_message
+            description: "Mensagem de erro quando houver falha."
+
+          - name: inventory_timestamp
+            description: "Timestamp da execução do inventário."
+
+      - name: profile
+        description: "Tabela bronze com os dados do perfil exportados do LinkedIn a partir do arquivo Profile.csv."
+
+        columns:
+          - name: first_name
+            description: "Primeiro nome do perfil."
+            data_tests:
+              - not_null
+
+          - name: last_name
+            description: "Sobrenome do perfil."
+            data_tests:
+              - not_null
+
+          - name: maiden_name
+            description: "Nome de solteiro, quando houver."
+
+          - name: address
+            description: "Endereço informado no perfil."
+
+          - name: birth_date
+            description: "Data de nascimento."
+
+          - name: headline
+            description: "Headline profissional do perfil."
+            data_tests:
+              - not_null
+
+          - name: summary
+            description: "Resumo profissional do perfil."
+
+          - name: industry
+            description: "Indústria/segmento informado no perfil."
+
+          - name: zip_code
+            description: "CEP informado no perfil."
+
+          - name: geo_location
+            description: "Localização geográfica do perfil."
+
+          - name: twitter_handles
+            description: "Handles do Twitter/X."
+
+          - name: websites
+            description: "Websites informados no perfil."
+
+          - name: instant_messengers
+            description: "Mensageiros instantâneos informados no perfil."
+
+      - name: connections
+        description: "Tabela bronze com as conexões exportadas do LinkedIn a partir do arquivo Connections.csv."
+
+        columns:
+          - name: first_name
+            description: "Primeiro nome da conexão."
+
+          - name: last_name
+            description: "Sobrenome da conexão."
+
+          - name: url
+            description: "URL do perfil da conexão no LinkedIn."
+
+          - name: email_address
+            description: "Endereço de e-mail da conexão, quando disponível."
+
+          - name: company
+            description: "Empresa associada à conexão."
+
+          - name: position
+            description: "Cargo da conexão."
+
+          - name: connected_on
+            description: "Data em que a conexão foi adicionada no LinkedIn."
+            data_tests:
+              - not_null
+
+      - name: positions
+        description: "Tabela bronze com o histórico de experiências profissionais exportadas do LinkedIn a partir do arquivo Positions.csv."
+
+        columns:
+          - name: company_name
+            description: "Nome da empresa da experiência profissional."
+            data_tests:
+              - not_null
+
+          - name: title
+            description: "Título/cargo da experiência profissional."
+            data_tests:
+              - not_null
+
+          - name: description
+            description: "Descrição detalhada da experiência profissional."
+
+          - name: location
+            description: "Localização associada à experiência."
+
+          - name: started_on
+            description: "Data de início da experiência profissional."
+            data_tests:
+              - not_null
+
+          - name: finished_on
+            description: "Data de fim da experiência profissional, quando houver."
+
+          - name: is_current
+            description: "Indicador booleano se a posição ainda está em andamento."
+            data_tests:
+              - not_null
+
+      - name: education
+        description: "Tabela bronze com a formação acadêmica exportada do LinkedIn a partir do arquivo Education.csv."
+
+        columns:
+          - name: school_name
+            description: "Nome da instituição de ensino."
+            data_tests:
+              - not_null
+
+          - name: degree_name
+            description: "Nome do curso, formação ou grau acadêmico."
+
+          - name: notes
+            description: "Observações ou detalhes complementares da formação."
+
+          - name: started_on
+            description: "Data de início da formação."
+
+          - name: finished_on
+            description: "Data de conclusão da formação."
+
+          - name: is_current_education
+            description: "Indicador se a formação ainda está em andamento."
+
+      - name: certifications
+        description: "Tabela bronze com as certificações exportadas do LinkedIn a partir do arquivo Certifications.csv."
+
+        columns:
+          - name: name
+            description: "Nome da certificação."
+            data_tests:
+              - not_null
+
+          - name: url
+            description: "URL da certificação."
+
+          - name: authority
+            description: "Organização emissora da certificação."
+            data_tests:
+              - not_null
+
+          - name: started_on
+            description: "Data de início da certificação."
+
+          - name: finished_on
+            description: "Data de término da certificação."
+
+          - name: license_number
+            description: "Número da licença, quando disponível."
+
+      - name: languages
+        description: "Tabela bronze com os idiomas exportados do LinkedIn a partir do arquivo Languages.csv."
+
+        columns:
+          - name: name
+            description: "Nome do idioma."
+            data_tests:
+              - not_null
+
+          - name: proficiency
+            description: "Nível de proficiência do idioma."
+            data_tests:
+              - not_null
+
+      - name: endorsement_received_info
+        description: "Tabela bronze com o detalhamento dos endossos recebidos do LinkedIn a partir do arquivo Endorsement_Received_Info.csv."
+
+        columns:
+          - name: endorsement_date
+            description: "Data em que o endosso foi recebido."
+
+          - name: skill_name
+            description: "Nome da habilidade endossada."
+            data_tests:
+              - not_null
+
+          - name: endorser_first_name
+            description: "Primeiro nome da pessoa que realizou o endosso."
+
+          - name: endorser_last_name
+            description: "Sobrenome da pessoa que realizou o endosso."
+
+          - name: endorser_public_url
+            description: "URL pública do perfil do endossante no LinkedIn."
+
+          - name: endorsement_status
+            description: "Status do endosso recebido."
+            data_tests:
+              - not_null
+
+      - name: company_follows
+        description: "Empresas seguidas no LinkedIn"
+
+        columns:
+          - name: organization
+            description: "Nome da empresa"
+            data_tests:
+              - not_null
+
+          - name: followed_on
+            description: "Data em que começou a seguir"
+            data_tests:
+              - not_null
+
+      - name: recommendations_received
+        description: "Recomendações recebidas no LinkedIn"
+
+        columns:
+          - name: recommendation_text
+            description: "Texto da recomendação"
+            data_tests:
+              - not_null
+
+      - name: skills
+        description: "Habilidades exportadas do LinkedIn a partir do arquivo Skills.csv."
+
+        columns:
+          - name: skill_name
+            description: "Nome da habilidade."
+            data_tests:
+              - not_null
+
+      - name: phone_numbers
+        description: "Telefones exportados do LinkedIn a partir do arquivo PhoneNumbers.csv."
+
+        columns:
+          - name: phone_number
+            description: "Número de telefone."
+            data_tests:
+              - not_null
+
+      - name: email_addresses
+        description: "E-mails da conta exportados do LinkedIn a partir do arquivo Email Addresses.csv."
+
+        columns:
+          - name: email_address
+            description: "Endereço de e-mail."
+            data_tests:
+              - not_null
+
+      - name: registration
+        description: "Metadados de cadastro exportados do LinkedIn a partir do arquivo Registration.csv."
+
+        columns:
+          - name: registered_at
+            description: "Momento do cadastro."
+
+      - name: saved_job_alerts
+        description: "Alertas de vagas salvos no LinkedIn."
+
+        columns:
+          - name: saved_search_id
+            description: "Identificador da busca salva."
+            data_tests:
+              - not_null
+
+      - name: volunteering
+        description: "Experiências de voluntariado exportadas do LinkedIn."
+
+        columns:
+          - name: company_name
+            description: "Nome da organização."
+            data_tests:
+              - not_null
+
+          - name: role
+            description: "Função exercida no voluntariado."
+            data_tests:
+              - not_null
+
+      - name: invitations
+        description: "Convites enviados ou recebidos no LinkedIn."
+
+        columns:
+          - name: sender_name
+            description: "Nome da pessoa remetente."
+            data_tests:
+              - not_null
+
+          - name: recipient_name
+            description: "Nome da pessoa destinatária."
+            data_tests:
+              - not_null
+
+          - name: direction
+            description: "Direção do convite."
+            data_tests:
+              - not_null
+
+      - name: events
+        description: "Eventos do LinkedIn relacionados ao perfil."
+
+        columns:
+          - name: event_name
+            description: "Nome do evento."
+            data_tests:
+              - not_null
+
+      - name: learning
+        description: "Histórico de conteúdos consumidos no LinkedIn Learning."
+
+        columns:
+          - name: content_title
+            description: "Título do conteúdo."
+            data_tests:
+              - not_null
+
+      - name: job_applications
+        description: "Candidaturas a vagas exportadas do LinkedIn."
+
+        columns:
+          - name: company_name
+            description: "Empresa da vaga."
+            data_tests:
+              - not_null
+
+          - name: job_title
+            description: "Título da vaga."
+            data_tests:
+              - not_null

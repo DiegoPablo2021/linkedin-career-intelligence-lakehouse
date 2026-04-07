@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: int_certifications_enriched
+    description: "Camada enriquecida de certificações"
+
+    columns:
+      - name: name_clean
+        tests:
+          - not_null
+
+      - name: authority_clean
+        tests:
+          - not_null

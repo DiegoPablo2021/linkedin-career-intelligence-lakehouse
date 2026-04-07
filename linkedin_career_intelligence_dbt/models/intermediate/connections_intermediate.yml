@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: int_connections_enriched
+    description: "Camada intermediate das conexões do LinkedIn com enriquecimentos analíticos para networking e evolução temporal."
+
+    columns:
+      - name: first_name
+        description: "Primeiro nome da conexão."
+
+      - name: last_name
+        description: "Sobrenome da conexão."
+
+      - name: full_name
+        description: "Nome completo da conexão."
+
+      - name: profile_url
+        description: "URL do perfil da conexão."
+
+      - name: email_address
+        description: "Endereço de e-mail da conexão."
+
+      - name: company
+        description: "Empresa original da conexão."
+
+      - name: position
+        description: "Cargo original da conexão."
+
+      - name: connected_on
+        description: "Data da conexão no LinkedIn."
+        data_tests:
+          - not_null
+
+      - name: has_email
+        description: "Indicador se a conexão possui e-mail disponível."
+        data_tests:
+          - not_null
+
+      - name: company_clean
+        description: "Empresa padronizada."
+
+      - name: position_clean
+        description: "Cargo padronizado."
+
+      - name: connection_year
+        description: "Ano da conexão."
+        data_tests:
+          - not_null
+
+      - name: connection_month
+        description: "Mês da conexão."
+        data_tests:
+          - not_null
+
+      - name: connection_year_month
+        description: "Ano e mês no formato YYYY-MM."
+        data_tests:
+          - not_null

@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_endorsement_received_info
+    description: "Dados tratados dos endossos recebidos em nível detalhado"
+
+    columns:
+      - name: skill_name
+        data_tests:
+          - not_null
+
+      - name: endorsement_status
+        data_tests:
+          - not_null

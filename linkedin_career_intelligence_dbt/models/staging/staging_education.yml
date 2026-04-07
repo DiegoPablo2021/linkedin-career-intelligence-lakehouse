@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: stg_education
+    description: "Camada staging das formações acadêmicas do LinkedIn, derivada da tabela bronze.education."
+
+    columns:
+      - name: school_name
+        description: "Nome da instituição de ensino."
+        data_tests:
+          - not_null
+
+      - name: degree_name
+        description: "Curso, grau ou formação acadêmica."
+
+      - name: notes
+        description: "Observações ou detalhes complementares."
+
+      - name: started_on
+        description: "Data de início da formação."
+
+      - name: finished_on
+        description: "Data de conclusão da formação."
+
+      - name: is_current_education
+        description: "Indicador se a formação ainda está em andamento."
+        data_tests:
+          - not_null

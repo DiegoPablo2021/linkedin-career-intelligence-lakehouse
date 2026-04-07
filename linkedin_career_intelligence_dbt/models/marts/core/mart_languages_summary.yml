@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: mart_languages_summary
+    description: "Resumo analítico dos idiomas por trilha de proficiência."
+
+    columns:
+      - name: proficiency_track
+        description: "Classificação simplificada da proficiência."
+        data_tests:
+          - not_null
+
+      - name: total_languages
+        description: "Quantidade total de registros por trilha."
+        data_tests:
+          - not_null
+
+      - name: unique_languages
+        description: "Quantidade de idiomas únicos por trilha."
+        data_tests:
+          - not_null

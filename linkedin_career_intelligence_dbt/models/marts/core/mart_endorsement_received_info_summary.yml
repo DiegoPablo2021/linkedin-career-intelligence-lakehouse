@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: mart_endorsement_received_info_summary
+    description: "Resumo agregado das habilidades com total de endossos recebidos"
+
+    columns:
+      - name: skill_name_clean
+        data_tests:
+          - not_null
+
+      - name: endorsement_count
+        data_tests:
+          - not_null
+
+      - name: unique_endorsers
+        data_tests:
+          - not_null

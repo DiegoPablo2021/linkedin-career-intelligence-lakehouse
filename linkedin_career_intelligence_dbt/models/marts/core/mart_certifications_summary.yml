@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: mart_certifications_summary
+    description: "Resumo temporal das certificações"
+
+    columns:
+      - name: total_certifications
+        tests:
+          - not_null
+
+      - name: unique_certifications
+        tests:
+          - not_null
+
+      - name: unique_authorities
+        tests:
+          - not_null

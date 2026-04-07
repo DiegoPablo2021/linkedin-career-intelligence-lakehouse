@@ -1,0 +1,83 @@
+version: 2
+
+models:
+  - name: mart_file_inventory_summary
+    description: "Mart analítico com o resumo do inventário de arquivos por tipo de export, categoria de dado, status de leitura e faixa de volume."
+
+    columns:
+      - name: export_type
+        description: "Tipo do export analisado."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - basic
+                  - complete
+
+      - name: categoria_dado
+        description: "Categoria analítica do dado."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - job_data
+                  - core_profile
+                  - services
+                  - trust
+                  - outros
+
+      - name: status_leitura
+        description: "Status da leitura do grupo agregado."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - ok
+                  - erro
+
+      - name: volume_categoria
+        description: "Faixa de volume do grupo agregado."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - erro_leitura
+                  - vazio
+                  - muito_pequeno
+                  - pequeno
+                  - medio
+                  - grande
+
+      - name: total_arquivos
+        description: "Quantidade total de arquivos no agrupamento."
+        data_tests:
+          - not_null
+
+      - name: total_linhas
+        description: "Soma das linhas dos arquivos do agrupamento."
+        data_tests:
+          - not_null
+
+      - name: total_colunas
+        description: "Soma das colunas dos arquivos do agrupamento."
+        data_tests:
+          - not_null
+
+      - name: total_tamanho_kb
+        description: "Soma do tamanho em KB dos arquivos do agrupamento."
+        data_tests:
+          - not_null
+
+      - name: primeira_execucao_inventario
+        description: "Primeiro timestamp de inventário no agrupamento."
+        data_tests:
+          - not_null
+
+      - name: ultima_execucao_inventario
+        description: "Último timestamp de inventário no agrupamento."
+        data_tests:
+          - not_null

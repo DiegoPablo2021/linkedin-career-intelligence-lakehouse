@@ -1,0 +1,92 @@
+version: 2
+
+models:
+  - name: int_positions_enriched
+    description: "Camada intermediate das experiências profissionais com enriquecimentos analíticos de tempo, trilha de carreira e padronização textual."
+
+    columns:
+      - name: company_name
+        description: "Nome original da empresa."
+        data_tests:
+          - not_null
+
+      - name: title
+        description: "Cargo original."
+        data_tests:
+          - not_null
+
+      - name: description
+        description: "Descrição da experiência."
+
+      - name: location
+        description: "Localização original."
+
+      - name: started_on
+        description: "Data de início."
+        data_tests:
+          - not_null
+
+      - name: finished_on
+        description: "Data de fim."
+
+      - name: is_current
+        description: "Indicador de posição atual."
+        data_tests:
+          - not_null
+
+      - name: company_name_clean
+        description: "Nome da empresa padronizado."
+
+      - name: title_clean
+        description: "Cargo padronizado."
+
+      - name: location_clean
+        description: "Localização padronizada."
+
+      - name: start_year
+        description: "Ano de início da posição."
+        data_tests:
+          - not_null
+
+      - name: start_month
+        description: "Mês de início da posição."
+        data_tests:
+          - not_null
+
+      - name: start_year_month
+        description: "Ano-mês de início da posição."
+        data_tests:
+          - not_null
+
+      - name: end_year
+        description: "Ano de fim da posição."
+
+      - name: end_month
+        description: "Mês de fim da posição."
+
+      - name: end_year_month
+        description: "Ano-mês de fim da posição."
+
+      - name: effective_end_date
+        description: "Data final efetiva usada no cálculo de duração."
+        data_tests:
+          - not_null
+
+      - name: duration_months
+        description: "Duração da posição em meses."
+        data_tests:
+          - not_null
+
+      - name: career_track
+        description: "Categoria simplificada da trilha de carreira."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - analista
+                  - engenharia
+                  - desenvolvimento
+                  - consultoria
+                  - assistente
+                  - outros

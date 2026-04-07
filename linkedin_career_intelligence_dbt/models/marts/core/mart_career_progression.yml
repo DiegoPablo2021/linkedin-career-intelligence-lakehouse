@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: mart_career_progression
+    description: >
+      Mart analítico com visão temporal das experiências profissionais
+      e indicadores de progressão de carreira.
+
+    columns:
+      - name: start_year
+        description: "Ano de início da posição."
+        data_tests:
+          - not_null
+
+      - name: start_month
+        description: "Mês de início da posição."
+        data_tests:
+          - not_null
+
+      - name: start_year_month
+        description: "Ano-mês de início da posição."
+        data_tests:
+          - not_null
+
+      - name: total_positions_started
+        description: "Quantidade total de posições iniciadas no período."
+        data_tests:
+          - not_null
+
+      - name: current_positions_started
+        description: >
+          Quantidade de posições iniciadas no período
+          que ainda estão em andamento.
+        data_tests:
+          - not_null
+
+      - name: unique_companies
+        description: "Quantidade de empresas únicas no período."
+        data_tests:
+          - not_null
+
+      - name: unique_titles
+        description: "Quantidade de cargos únicos no período."
+        data_tests:
+          - not_null
+
+      - name: avg_duration_months
+        description: "Duração média das posições iniciadas no período."

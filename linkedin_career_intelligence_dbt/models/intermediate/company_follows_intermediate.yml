@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: int_company_follows_enriched
+    description: "Empresas seguidas com enriquecimento temporal"
+
+    columns:
+      - name: organization_clean
+        data_tests:
+          - not_null

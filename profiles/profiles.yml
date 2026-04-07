@@ -1,0 +1,8 @@
+linkedin_career_intelligence:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('LINKEDIN_DUCKDB_PATH', 'C:/Projetos/linkedIn_career_intelligence_lakehouse/warehouse/linkedin_career_intelligence.duckdb') }}"
+      threads: 4
+      schema: main

@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: int_languages_enriched
+    description: "Camada intermediate dos idiomas com padronização textual e classificação da proficiência."
+
+    columns:
+      - name: name
+        description: "Nome original do idioma."
+        data_tests:
+          - not_null
+
+      - name: proficiency
+        description: "Proficiência original."
+        data_tests:
+          - not_null
+
+      - name: language_name_clean
+        description: "Nome do idioma padronizado."
+        data_tests:
+          - not_null
+
+      - name: proficiency_clean
+        description: "Proficiência padronizada."
+        data_tests:
+          - not_null
+
+      - name: proficiency_track
+        description: "Classificação simplificada da proficiência."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - nativo
+                  - fluente
+                  - profissional
+                  - intermediario_profissional
+                  - basico
+                  - outros

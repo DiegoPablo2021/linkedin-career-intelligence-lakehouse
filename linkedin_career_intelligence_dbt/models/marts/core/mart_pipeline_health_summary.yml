@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: mart_pipeline_health_summary
+    description: "Resumo operacional da saúde do pipeline e da cobertura analítica carregada no warehouse."
+
+    columns:
+      - name: total_inventory_files
+        data_tests:
+          - not_null
+
+      - name: successful_reads
+        data_tests:
+          - not_null
+
+      - name: failed_reads
+        data_tests:
+          - not_null
+
+      - name: latest_inventory_timestamp
+        data_tests:
+          - not_null
+
+      - name: total_connections
+        data_tests:
+          - not_null
+
+      - name: total_positions
+        data_tests:
+          - not_null
+
+      - name: total_recommendations
+        data_tests:
+          - not_null
+

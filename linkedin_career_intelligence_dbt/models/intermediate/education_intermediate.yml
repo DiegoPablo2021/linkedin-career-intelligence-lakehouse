@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: int_education_enriched
+    description: "Camada intermediate das formações acadêmicas com enriquecimentos analíticos de tempo, padronização textual e classificação da trilha educacional."
+
+    columns:
+      - name: school_name
+        description: "Nome original da instituição."
+        data_tests:
+          - not_null
+
+      - name: degree_name
+        description: "Curso ou formação original."
+
+      - name: notes
+        description: "Detalhes complementares da formação."
+
+      - name: started_on
+        description: "Data de início da formação."
+
+      - name: finished_on
+        description: "Data de término da formação."
+
+      - name: is_current_education
+        description: "Indicador de formação em andamento."
+        data_tests:
+          - not_null
+
+      - name: school_name_clean
+        description: "Nome da instituição padronizado."
+
+      - name: degree_name_clean
+        description: "Nome da formação padronizado."
+
+      - name: start_year
+        description: "Ano de início da formação."
+
+      - name: start_month
+        description: "Mês de início da formação."
+
+      - name: start_year_month
+        description: "Ano-mês de início da formação."
+
+      - name: end_year
+        description: "Ano de término da formação."
+
+      - name: end_month
+        description: "Mês de término da formação."
+
+      - name: end_year_month
+        description: "Ano-mês de término da formação."
+
+      - name: effective_end_date
+        description: "Data final efetiva usada para cálculo de duração."
+        data_tests:
+          - not_null
+
+      - name: education_duration_months
+        description: "Duração da formação em meses."
+        data_tests:
+          - not_null
+
+      - name: education_track
+        description: "Classificação simplificada da trilha educacional."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - tecnologo
+                  - bacharelado
+                  - licenciatura
+                  - pos_graduacao
+                  - mba
+                  - mestrado
+                  - doutorado
+                  - outros

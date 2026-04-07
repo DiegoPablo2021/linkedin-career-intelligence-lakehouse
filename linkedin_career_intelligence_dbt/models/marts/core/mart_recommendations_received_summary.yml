@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: mart_recommendations_received_summary
+    description: "Resumo analítico das recomendações recebidas"
+
+    columns:
+      - name: total_recommendations
+        data_tests:
+          - not_null
+
+      - name: avg_text_length
+        data_tests:
+          - not_null

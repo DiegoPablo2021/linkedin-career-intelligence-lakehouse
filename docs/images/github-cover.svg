@@ -1,0 +1,28 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0E1117"/>
+  <rect x="32" y="32" width="1136" height="566" rx="28" fill="#111827" stroke="#233044" stroke-width="2"/>
+  <text x="84" y="138" fill="#8FA9C7" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="3">DATA ENGINEERING CASE</text>
+  <text x="84" y="230" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="800">LinkedIn Career Intelligence</text>
+  <text x="84" y="298" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="800">Lakehouse</text>
+  <text x="84" y="360" fill="#B7C7DE" font-family="Segoe UI, Arial, sans-serif" font-size="26">Python ingestion • DuckDB • dbt • Streamlit • profiling • portfolio-ready analytics app</text>
+
+  <rect x="84" y="418" width="238" height="104" rx="20" fill="#132033" stroke="#4EA1FF" stroke-width="2"/>
+  <text x="114" y="460" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">91 arquivos lidos</text>
+  <text x="114" y="494" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Inventário técnico com 100%</text>
+  <text x="114" y="518" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">de sucesso na leitura</text>
+
+  <rect x="350" y="418" width="238" height="104" rx="20" fill="#103038" stroke="#26C6DA" stroke-width="2"/>
+  <text x="380" y="460" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">9.697 conexões</text>
+  <text x="380" y="494" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Rede profissional convertida</text>
+  <text x="380" y="518" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">em leitura analítica</text>
+
+  <rect x="616" y="418" width="238" height="104" rx="20" fill="#201A3A" stroke="#7C9CF5" stroke-width="2"/>
+  <text x="646" y="460" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">14+ domínios</text>
+  <text x="646" y="494" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Career, Profile, Learning,</text>
+  <text x="646" y="518" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Skills, Jobs e mais</text>
+
+  <rect x="882" y="418" width="238" height="104" rx="20" fill="#3B2A0D" stroke="#F2C14E" stroke-width="2"/>
+  <text x="912" y="460" fill="#EAF2FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Deploy-ready case</text>
+  <text x="912" y="494" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">Estrutura pronta para GitHub,</text>
+  <text x="912" y="518" fill="#C5D3E6" font-family="Segoe UI, Arial, sans-serif" font-size="16">portfolio e apresentação</text>
+</svg>

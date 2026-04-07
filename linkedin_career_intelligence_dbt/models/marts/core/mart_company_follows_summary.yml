@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: mart_company_follows_summary
+    description: "Resumo das empresas seguidas"
+
+    columns:
+      - name: organization_clean
+        data_tests:
+          - not_null
+
+      - name: follow_count
+        data_tests:
+          - not_null

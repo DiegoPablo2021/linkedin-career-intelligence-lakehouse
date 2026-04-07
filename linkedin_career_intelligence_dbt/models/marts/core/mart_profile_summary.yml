@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: mart_profile_summary
+    description: "Resumo do perfil do LinkedIn"
+    columns:
+      - name: first_name
+        tests:
+          - not_null
+
+      - name: last_name
+        tests:
+          - not_null
+
+      - name: headline
+        tests:
+          - not_null
+
+      - name: profile_track
+        tests:
+          - not_null

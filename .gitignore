@@ -1,0 +1,37 @@
+# Ambiente virtual
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# VS Code
+.vscode/
+
+# dbt target / logs
+target/
+dbt_packages/
+logs/
+.pytest_cache/
+pytest-cache-files-*/
+
+# Dados sensíveis ou pesados
+data/raw/
+data/bronze/
+data/silver/
+data/gold/
+data/exports/
+
+# DuckDB temporários
+*.wal
+*.tmp
+warehouse/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Sistema
+.DS_Store
+Thumbs.db

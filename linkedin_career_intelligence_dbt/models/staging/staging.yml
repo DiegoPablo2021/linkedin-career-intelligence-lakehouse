@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: stg_file_inventory
+    description: "Camada staging do inventário de arquivos do LinkedIn, derivada da source bronze.file_inventory."
+
+    columns:
+      - name: export_name
+        description: "Nome do pacote de exportação de origem."
+        data_tests:
+          - not_null
+
+      - name: export_type
+        description: "Tipo do export."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - basic
+                  - complete
+
+      - name: relative_path
+        description: "Caminho relativo do arquivo dentro do export."
+
+      - name: file_name
+        description: "Nome do arquivo CSV."
+        data_tests:
+          - not_null
+
+      - name: file_stem
+        description: "Nome do arquivo sem extensão."
+
+      - name: folder_name
+        description: "Pasta lógica de origem."
+
+      - name: file_size_bytes
+        description: "Tamanho do arquivo em bytes."
+
+      - name: file_size_kb
+        description: "Tamanho do arquivo em kilobytes."
+
+      - name: row_count
+        description: "Quantidade de linhas detectadas."
+
+      - name: column_count
+        description: "Quantidade de colunas detectadas."
+
+      - name: column_names
+        description: "Lista serializada com os nomes das colunas."
+
+      - name: detected_encoding
+        description: "Encoding usado na leitura."
+
+      - name: read_success
+        description: "Indicador de sucesso na leitura."
+        data_tests:
+          - not_null
+
+      - name: error_message
+        description: "Mensagem de erro quando houver falha."
+
+      - name: inventory_timestamp
+        description: "Timestamp convertido da execução do inventário."
+        data_tests:
+          - not_null

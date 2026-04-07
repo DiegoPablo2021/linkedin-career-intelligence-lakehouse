@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: mart_recommendations_received_timeline
+    description: "Linha do tempo analítica das recomendações recebidas."
+
+    columns:
+      - name: recommendation_year
+        data_tests:
+          - not_null
+
+      - name: recommendation_month
+        data_tests:
+          - not_null
+
+      - name: recommendation_year_month
+        data_tests:
+          - not_null
+
+      - name: total_recommendations
+        data_tests:
+          - not_null

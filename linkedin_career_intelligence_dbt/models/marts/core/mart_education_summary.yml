@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: mart_education_summary
+    description: >
+      Mart analítico com visão temporal das formações acadêmicas
+      e indicadores da trajetória educacional.
+
+    columns:
+      - name: start_year
+        description: "Ano de início da formação."
+
+      - name: start_month
+        description: "Mês de início da formação."
+
+      - name: start_year_month
+        description: "Ano-mês de início da formação."
+
+      - name: total_education_started
+        description: "Quantidade total de formações iniciadas no período."
+        data_tests:
+          - not_null
+
+      - name: current_education_started
+        description: "Quantidade de formações iniciadas no período e ainda em andamento."
+        data_tests:
+          - not_null
+
+      - name: unique_schools
+        description: "Quantidade de instituições únicas no período."
+        data_tests:
+          - not_null
+
+      - name: unique_degrees
+        description: "Quantidade de formações únicas no período."
+        data_tests:
+          - not_null
+
+      - name: avg_education_duration_months
+        description: "Duração média das formações iniciadas no período."
