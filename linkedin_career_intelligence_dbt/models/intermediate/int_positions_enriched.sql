@@ -7,9 +7,9 @@ select
     finished_on,
     is_current,
 
-    trim(lower(company_name)) as company_name_clean,
-    trim(lower(title)) as title_clean,
-    trim(lower(coalesce(location, ''))) as location_clean,
+    {{ lower_trim_text('company_name') }} as company_name_clean,
+    {{ lower_trim_text('title') }} as title_clean,
+    {{ lower_trim_text("coalesce(location, '')") }} as location_clean,
 
     extract(year from started_on) as start_year,
     extract(month from started_on) as start_month,

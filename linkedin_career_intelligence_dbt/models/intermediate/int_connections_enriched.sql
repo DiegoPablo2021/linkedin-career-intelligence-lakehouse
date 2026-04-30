@@ -13,8 +13,8 @@ select
         else false
     end as has_email,
 
-    trim(lower(company)) as company_clean,
-    trim(lower(position)) as position_clean,
+    {{ lower_trim_text('company') }} as company_clean,
+    {{ lower_trim_text('position') }} as position_clean,
 
     extract(year from connected_on) as connection_year,
     extract(month from connected_on) as connection_month,

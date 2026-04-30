@@ -1,18 +1,18 @@
 select
-    trim(first_name) as first_name,
-    trim(last_name) as last_name,
-    trim(maiden_name) as maiden_name,
-    trim(address) as address,
+    {{ trim_text('first_name') }} as first_name,
+    {{ trim_text('last_name') }} as last_name,
+    {{ trim_text('maiden_name') }} as maiden_name,
+    {{ trim_text('address') }} as address,
 
-    cast(birth_date as date) as birth_date,
+    cast({{ nullif_trim_text('birth_date') }} as date) as birth_date,
 
-    trim(headline) as headline,
-    trim(summary) as summary,
-    trim(industry) as industry,
-    trim(zip_code) as zip_code,
-    trim(geo_location) as geo_location,
-    trim(twitter_handles) as twitter_handles,
-    trim(websites) as websites,
-    trim(instant_messengers) as instant_messengers
+    {{ trim_text('headline') }} as headline,
+    {{ trim_text('summary') }} as summary,
+    {{ trim_text('industry') }} as industry,
+    {{ trim_text('zip_code') }} as zip_code,
+    {{ trim_text('geo_location') }} as geo_location,
+    {{ trim_text('twitter_handles') }} as twitter_handles,
+    {{ trim_text('websites') }} as websites,
+    {{ trim_text('instant_messengers') }} as instant_messengers
 
 from {{ source('bronze', 'profile') }}

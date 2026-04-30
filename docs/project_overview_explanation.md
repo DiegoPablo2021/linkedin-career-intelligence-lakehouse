@@ -90,6 +90,8 @@ O app Streamlit permite navegar pelos dados em páginas por domínio e responder
 - quais sinais de aprendizado contínuo existem
 - como está a saúde operacional do pipeline
 
+Na Home, o projeto também apresenta um resumo executivo do case, um bloco de autoria com links do profissional e uma sinalização clara quando a execução está usando a demo pública sanitizada.
+
 ## Diferenciais do projeto
 
 Os diferenciais mais fortes são:
@@ -97,6 +99,7 @@ Os diferenciais mais fortes são:
 - arquitetura `raw -> bronze -> staging -> intermediate -> marts -> app`
 - contratos de dados na ingestão
 - auditoria de carga em `bronze.ingestion_audit`
+- app com narrativa executiva, identidade autoral e navegação orientada por domínio
 - testes Python, testes dbt e lint SQL
 - validação reprodutível em CI com base sintética
 - estratégia de demo pública com sanitização dos dados

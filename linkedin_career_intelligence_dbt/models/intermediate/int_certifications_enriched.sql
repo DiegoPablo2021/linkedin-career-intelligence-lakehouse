@@ -6,8 +6,8 @@ select
     finished_on,
     license_number,
 
-    lower(trim(name)) as name_clean,
-    lower(trim(authority)) as authority_clean,
+    {{ lower_trim_text('name') }} as name_clean,
+    {{ lower_trim_text('authority') }} as authority_clean,
 
     extract(year from started_on) as start_year,
     extract(month from started_on) as start_month,

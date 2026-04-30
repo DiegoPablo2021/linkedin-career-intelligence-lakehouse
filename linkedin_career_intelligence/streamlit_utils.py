@@ -104,6 +104,38 @@ def render_dataframe(df: pd.DataFrame, *, hide_index: bool = False) -> None:
     st.dataframe(df, width="stretch", hide_index=hide_index)
 
 
+def render_author_spotlight(
+    *,
+    eyebrow: str,
+    name: str,
+    role: str,
+    image_url: str,
+    links: list[tuple[str, str]],
+) -> None:
+    valid_links = [
+        f'<a class="cci-author-link" href="{url}" target="_blank">{label}</a>'
+        for label, url in links
+        if url
+    ]
+    links_html = "".join(valid_links)
+    st.markdown(
+        f"""
+        <div class="cci-author-card">
+            <div class="cci-author-eyebrow">{eyebrow}</div>
+            <div class="cci-author-layout">
+                <img class="cci-author-avatar" src="{image_url}" alt="{name}" />
+                <div class="cci-author-copy">
+                    <div class="cci-author-name">{name}</div>
+                    <div class="cci-author-role">{role}</div>
+                    <div class="cci-author-links">{links_html}</div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def apply_app_theme() -> None:
     bg_primary = "#0E1117"
     bg_secondary = "#111827"
@@ -124,7 +156,8 @@ def apply_app_theme() -> None:
     }
 
     .block-container {
-        padding-top: 2.25rem;
+        padding-top: 3.4rem;
+        padding-bottom: 2rem;
     }
 
     .stApp {
@@ -224,6 +257,7 @@ def apply_app_theme() -> None:
     .cci-demo-banner {
         border-radius: 16px;
         padding: 1.05rem 1.25rem;
+        margin-top: 0.55rem;
         margin-bottom: 1.2rem;
         border: 1px solid rgba(124, 196, 255, 0.28);
         background: linear-gradient(135deg, rgba(78, 161, 255, 0.16), rgba(38, 198, 218, 0.09));
@@ -235,6 +269,75 @@ def apply_app_theme() -> None:
         word-break: normal;
         width: 100%;
         box-sizing: border-box;
+    }
+
+    .cci-author-card {
+        background: linear-gradient(180deg, rgba(17, 36, 62, 0.92), rgba(11, 20, 36, 0.96));
+        border: 1px solid var(--cci-border);
+        border-radius: 22px;
+        padding: 1.15rem 1.25rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .cci-author-eyebrow {
+        color: var(--cci-text-primary);
+        font-size: 0.88rem;
+        font-weight: 700;
+        margin-bottom: 0.9rem;
+    }
+
+    .cci-author-layout {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .cci-author-avatar {
+        width: 96px;
+        height: 96px;
+        border-radius: 999px;
+        object-fit: cover;
+        border: 3px solid rgba(78, 161, 255, 0.92);
+        flex: 0 0 auto;
+    }
+
+    .cci-author-copy {
+        min-width: 220px;
+        flex: 1 1 320px;
+    }
+
+    .cci-author-name {
+        color: var(--cci-text-primary);
+        font-size: 1.85rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 0.35rem;
+    }
+
+    .cci-author-role {
+        color: var(--cci-text-secondary);
+        font-size: 1.02rem;
+        line-height: 1.5;
+        margin-bottom: 0.7rem;
+    }
+
+    .cci-author-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+    }
+
+    .cci-author-link {
+        color: #26A7FF;
+        font-size: 0.98rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .cci-author-link:hover {
+        text-decoration: underline;
     }
     </style>
     """

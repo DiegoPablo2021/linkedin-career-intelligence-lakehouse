@@ -1,6 +1,6 @@
 select
     skill_name,
-    trim(lower(skill_name)) as skill_name_clean,
+    {{ lower_trim_text('skill_name') }} as skill_name_clean,
     length(skill_name) as skill_name_length,
     case
         when

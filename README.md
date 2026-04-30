@@ -70,6 +70,13 @@ CSV exportados do LinkedIn
 
 ## Aplicativo Streamlit
 
+O app agora traz uma Home mais orientada a apresentação do case:
+
+- hero executivo do projeto
+- bloco de autor com links principais
+- banner de demo pública com layout estável
+- páginas por domínio com helpers visuais reutilizáveis
+
 Páginas disponíveis hoje:
 
 - `Health`
@@ -224,6 +231,7 @@ Camada final para consumo do app:
 - `pytest` para regras Python
 - `dbt build` para modelos e testes analíticos
 - `sqlfluff` configurado para DuckDB + dbt
+- macros dbt de sanitização textual para proteger o app contra variações de tipo nos exports reais
 - `inspect_warehouse.py` para inspecionar o banco local sem precisar abrir o arquivo binário `.duckdb`
 - auditoria de ingestão persistida no próprio warehouse para suporte a troubleshooting e governança
 - CI no GitHub Actions com base sintética para validar o projeto sem depender dos exports privados

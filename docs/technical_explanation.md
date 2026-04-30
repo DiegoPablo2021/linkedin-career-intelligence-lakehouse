@@ -62,6 +62,8 @@ Responsabilidades:
 - pequenas normalizações SQL-friendly
 - exposição de fontes limpas para consumo interno
 
+Além disso, a camada passou a usar macros reutilizáveis de sanitização textual, como `trim_text`, `nullif_trim_text` e `lower_trim_text`, para absorver variações de tipo vindas do export real sem quebrar o app.
+
 ### 4. Camada intermediate
 
 Implementada em dbt.
@@ -142,6 +144,8 @@ O app Streamlit passou a usar utilitários compartilhados para:
 - renderização de gráficos
 
 Isso reduz repetição e melhora consistência visual e de código.
+
+Na Home, isso também permitiu consolidar um bloco de autoria reutilizável e um banner de demo pública com layout estável, sem sobreposição com o header do Streamlit.
 
 ## Governança e segurança
 
