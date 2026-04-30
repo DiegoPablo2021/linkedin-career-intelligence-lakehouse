@@ -35,7 +35,7 @@ def get_project_root() -> Path:
 
 
 def resolve_db_path(default_db_path: Path, demo_db_path: Path) -> tuple[Path, bool]:
-    configured_db_path = os.getenv("LINKEDIN_DB_PATH")
+    configured_db_path = os.getenv("LINKEDIN_DB_PATH") or os.getenv("LINKEDIN_DUCKDB_PATH")
     if configured_db_path:
         resolved_path = Path(configured_db_path).expanduser()
         if not resolved_path.is_absolute():

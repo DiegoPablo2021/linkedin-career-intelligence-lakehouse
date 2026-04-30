@@ -8,10 +8,10 @@ on:
   pull_request:
 
 jobs:
-  quality:
-    runs-on: windows-latest
+  validation:
+    runs-on: ubuntu-latest
     env:
-      LINKEDIN_DUCKDB_PATH: ${{ github.workspace }}\warehouse\linkedin_career_intelligence.duckdb
+      LINKEDIN_DUCKDB_PATH: ${{ github.workspace }}/warehouse/linkedin_career_intelligence_validation.duckdb
 
     steps:
       - name: Checkout
@@ -21,21 +21,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run ingestion
-        run: python scripts/run_ingestion.py
-
-      - name: Run profiling inventory
-        run: python scripts/profiling/inventory_linkedin_exports.py
-
-      - name: Run unit tests
-        run: python -m pytest -q
-
-      - name: Run dbt build
-        working-directory: linkedin_career_intelligence_dbt
-        run: dbt build --profiles-dir ..\profiles
+      - name: Run full validation suite
+        run: python scripts/run_validation.py

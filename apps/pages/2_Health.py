@@ -1,7 +1,6 @@
 from pathlib import Path
 import sys
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 
@@ -11,28 +10,28 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from linkedin_career_intelligence.streamlit_utils import (
-    apply_app_theme,
+    configure_page,
+    render_dataframe,
+    render_horizontal_bar_chart,
     render_card,
+    render_metric_row,
     render_question,
-    run_query,
+    render_time_series_chart,
+    load_query,
     safe_int,
     safe_sum,
-    style_matplotlib,
 )
 
 
-st.set_page_config(page_title="Health", layout="wide")
-apply_app_theme()
+configure_page("Health", "Saúde operacional do pipeline e cobertura dos dados")
 
 
-@st.cache_data
 def load_health_summary() -> pd.DataFrame:
-    return run_query("select * from main.mart_pipeline_health_summary")
+    return load_query("select * from main.mart_pipeline_health_summary")
 
 
-@st.cache_data
 def load_inventory_status() -> pd.DataFrame:
-    return run_query(
+    return load_query(
         """
         select
             export_type,
@@ -46,9 +45,8 @@ def load_inventory_status() -> pd.DataFrame:
     )
 
 
-@st.cache_data
 def load_domain_snapshot() -> pd.DataFrame:
-    return run_query(
+    return load_query(
         """
         select 'connections' as domain_name, count(*) as total_records from main.int_connections_enriched
         union all
@@ -85,10 +83,6 @@ def load_domain_snapshot() -> pd.DataFrame:
         order by total_records desc, domain_name
         """
     )
-
-
-st.title("Health")
-st.subheader("Saúde operacional do pipeline e cobertura dos dados")
 
 df_health = load_health_summary()
 df_inventory = load_inventory_status()
@@ -131,11 +125,14 @@ inventory_export = (
 inventory_export["total_linhas"] = inventory_export["total_linhas"].fillna(0).astype(int)
 inventory_export["success_rate"] = 100
 
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Arquivos inventariados", f"{total_inventory_files}")
-c2.metric("Leituras com sucesso", f"{successful_reads}")
-c3.metric("Leituras com erro", f"{failed_reads}")
-c4.metric("Registros analíticos", f"{coverage_total}")
+render_metric_row(
+    [
+        ("Arquivos inventariados", total_inventory_files),
+        ("Leituras com sucesso", successful_reads),
+        ("Leituras com erro", failed_reads),
+        ("Registros analíticos", coverage_total),
+    ]
+)
 
 st.caption(f"Última execução do inventário: {latest_inventory_timestamp}")
 st.divider()
@@ -156,40 +153,45 @@ if not inventory_export.empty:
 
     left, right = st.columns(2)
     with left:
-        fig_files, ax_files = plt.subplots(figsize=(8, 4.8))
-        ax_files.barh(inventory_export["export_type"], inventory_export["total_arquivos"], color=["#4EA1FF", "#26C6DA"])
-        ax_files.set_title("Arquivos por tipo de export")
-        ax_files.set_xlabel("Total de arquivos")
-        ax_files.set_ylabel("Export")
-        style_matplotlib(fig_files, ax_files)
-        plt.tight_layout()
-        st.pyplot(fig_files)
+        render_horizontal_bar_chart(
+            inventory_export,
+            label_column="export_type",
+            value_column="total_arquivos",
+            title="Arquivos por tipo de export",
+            x_label="Total de arquivos",
+            y_label="Export",
+            color="#4EA1FF",
+            figsize=(8, 4.8),
+        )
 
     with right:
-        fig_lines, ax_lines = plt.subplots(figsize=(8, 4.8))
-        ax_lines.barh(inventory_export["export_type"], inventory_export["total_linhas"], color=["#7C9CF5", "#F2C14E"])
-        ax_lines.set_title("Linhas lidas por tipo de export")
-        ax_lines.set_xlabel("Total de linhas")
-        ax_lines.set_ylabel("Export")
-        style_matplotlib(fig_lines, ax_lines)
-        plt.tight_layout()
-        st.pyplot(fig_lines)
+        render_horizontal_bar_chart(
+            inventory_export,
+            label_column="export_type",
+            value_column="total_linhas",
+            title="Linhas lidas por tipo de export",
+            x_label="Total de linhas",
+            y_label="Export",
+            color="#7C9CF5",
+            figsize=(8, 4.8),
+        )
 
-    st.dataframe(inventory_export, width="stretch", hide_index=True)
+    render_dataframe(inventory_export, hide_index=True)
 
 st.divider()
 st.markdown("## Cobertura por domínio")
 
 top_domains = df_domains.head(10).copy()
-fig, ax = plt.subplots(figsize=(11, 5.8))
-ax.barh(top_domains["domain_name"], top_domains["total_records"], color="#4EA1FF")
-ax.set_title("Top domínios por volume disponível")
-ax.set_xlabel("Total de registros")
-ax.set_ylabel("Domínio")
-ax.invert_yaxis()
-style_matplotlib(fig, ax)
-plt.tight_layout()
-st.pyplot(fig)
+render_horizontal_bar_chart(
+    top_domains,
+    label_column="domain_name",
+    value_column="total_records",
+    title="Top domínios por volume disponível",
+    x_label="Total de registros",
+    y_label="Domínio",
+    color="#4EA1FF",
+    figsize=(11, 5.8),
+)
 
 domain_left, domain_right = st.columns(2)
 with domain_left:
@@ -207,7 +209,7 @@ with domain_right:
         "O inventário atual não registra falhas de leitura, o que ajuda bastante na confiança do case.",
     )
 
-st.dataframe(df_domains, width="stretch", hide_index=True)
+render_dataframe(df_domains, hide_index=True)
 
 st.divider()
 st.markdown("## Leitura operacional")

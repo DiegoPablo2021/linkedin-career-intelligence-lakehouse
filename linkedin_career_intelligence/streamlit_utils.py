@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 from matplotlib.axes import Axes
@@ -24,6 +25,11 @@ def run_query(query: str) -> pd.DataFrame:
     return df
 
 
+@st.cache_data(show_spinner=False)
+def load_query(query: str) -> pd.DataFrame:
+    return run_query(query)
+
+
 def ui_text(pt_text: str, en_text: str) -> str:
     return pt_text
 
@@ -42,6 +48,60 @@ def safe_float(value: object, default: float = 0.0) -> float:
 
 def safe_sum(*values: object) -> int:
     return sum(safe_int(value) for value in values)
+
+
+def format_title_case(value: object) -> str:
+    if value is None or pd.isna(value):
+        return ""
+    return str(value).strip().title()
+
+
+def map_display_value(value: object, mapping: dict[str, str]) -> str:
+    if value is None or pd.isna(value):
+        return ""
+    normalized = str(value).strip()
+    return mapping.get(normalized, normalized.title())
+
+
+def apply_title_case(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    formatted = df.copy()
+    for column in columns:
+        if column in formatted.columns:
+            formatted[column] = formatted[column].apply(format_title_case)
+    return formatted
+
+
+def apply_label_mapping(df: pd.DataFrame, column: str, mapping: dict[str, str]) -> pd.DataFrame:
+    formatted = df.copy()
+    if column in formatted.columns:
+        formatted[column] = formatted[column].apply(lambda value: map_display_value(value, mapping))
+    return formatted
+
+
+def apply_datetime_conversion(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    formatted = df.copy()
+    for column in columns:
+        if column in formatted.columns:
+            formatted[column] = pd.to_datetime(formatted[column], errors="coerce")
+    return formatted
+
+
+def configure_page(page_title: str, subtitle: str | None = None, *, layout: str = "wide") -> None:
+    st.set_page_config(page_title=page_title, layout=layout)
+    apply_app_theme()
+    st.title(page_title)
+    if subtitle:
+        st.subheader(subtitle)
+
+
+def render_metric_row(metrics: list[tuple[str, object]]) -> None:
+    columns = st.columns(len(metrics))
+    for column, (label, value) in zip(columns, metrics):
+        column.metric(label, f"{value}")
+
+
+def render_dataframe(df: pd.DataFrame, *, hide_index: bool = False) -> None:
+    st.dataframe(df, width="stretch", hide_index=hide_index)
 
 
 def apply_app_theme() -> None:
@@ -257,3 +317,56 @@ def apply_straight_xticks(ax: Axes, labels: list[str], max_ticks: int = 8) -> li
     ax.set_xticks(selected, [labels[idx] for idx in selected])
     ax.tick_params(axis="x", rotation=0)
     return selected
+
+
+def render_time_series_chart(
+    df: pd.DataFrame,
+    *,
+    x_labels: list[str],
+    y_column: str,
+    title: str,
+    x_label: str,
+    y_label: str,
+    color: str,
+    kind: str = "line",
+    max_ticks: int = 10,
+    figsize: tuple[float, float] = (12, 5),
+) -> None:
+    x_positions = list(range(len(df)))
+    fig, ax = plt.subplots(figsize=figsize)
+    if kind == "line":
+        ax.plot(x_positions, df[y_column], marker="o", color=color, linewidth=2.4)
+    elif kind == "bar":
+        ax.bar(x_positions, df[y_column], color=color)
+    else:
+        raise ValueError(f"Unsupported chart kind: {kind}")
+
+    ax.set_title(title)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    apply_straight_xticks(ax, x_labels, max_ticks=max_ticks)
+    style_matplotlib(fig, ax)
+    plt.tight_layout()
+    st.pyplot(fig)
+
+
+def render_horizontal_bar_chart(
+    df: pd.DataFrame,
+    *,
+    label_column: str,
+    value_column: str,
+    title: str,
+    x_label: str,
+    y_label: str,
+    color: str,
+    figsize: tuple[float, float] = (10, 6),
+) -> None:
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.barh(df[label_column], df[value_column], color=color)
+    ax.set_title(title)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.invert_yaxis()
+    style_matplotlib(fig, ax)
+    plt.tight_layout()
+    st.pyplot(fig)
