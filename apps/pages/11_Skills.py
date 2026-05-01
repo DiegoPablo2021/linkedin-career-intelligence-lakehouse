@@ -48,9 +48,27 @@ unique_skills = int(df_detail["skill_name_clean"].nunique()) if not df_detail.em
 top_category = df_summary.iloc[0]["skill_category"] if not df_summary.empty else "-"
 
 c1, c2, c3 = st.columns(3)
-c1.metric("Skills totais", total_skills)
-c2.metric("Skills únicas", unique_skills)
-c3.metric("Categoria dominante", str(top_category).replace("_", " ").title())
+with c1:
+    render_card(
+        "Skills totais",
+        str(total_skills),
+        "Quantidade de registros de skills tratada no pipeline analítico.",
+        tone="blue",
+    )
+with c2:
+    render_card(
+        "Skills únicas",
+        str(unique_skills),
+        "Contagem distinta após limpeza, padronização e deduplicação.",
+        tone="teal",
+    )
+with c3:
+    render_card(
+        "Categoria dominante",
+        str(top_category).replace("_", " ").title(),
+        "Categoria com maior presença relativa dentro do portfólio atual.",
+        tone="gold",
+    )
 
 st.divider()
 
@@ -62,12 +80,14 @@ with insight_left:
         f"{dominant_share}%",
         "Participação da categoria dominante dentro do total de skills carregadas.",
         tone="blue",
+        min_height=160,
     )
 with insight_right:
     render_question(
         "O portfólio de skills é concentrado ou distribuído?",
         "Predominantemente concentrado em uma categoria principal.",
         "Ainda assim, as categorias secundárias mostram amplitude técnica complementar.",
+        min_height=160,
     )
 
 st.markdown("## Distribuição por categoria")

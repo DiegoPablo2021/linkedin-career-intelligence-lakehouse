@@ -112,11 +112,18 @@ def render_author_spotlight(
     image_url: str,
     links: list[tuple[str, str]],
 ) -> None:
-    valid_links = [
-        f'<a class="cci-author-link" href="{url}" target="_blank">{label}</a>'
-        for label, url in links
-        if url
-    ]
+    valid_links = []
+    for label, url in links:
+        if not url:
+            continue
+        if str(url).startswith("text:"):
+            valid_links.append(f'<span class="cci-author-link cci-author-link-text">{label}</span>')
+        elif str(url).startswith("mailto:"):
+            valid_links.append(f'<a class="cci-author-link" href="{url}" target="_self">{label}</a>')
+        else:
+            valid_links.append(
+                f'<a class="cci-author-link" href="{url}" target="_blank" rel="noopener noreferrer">{label}</a>'
+            )
     links_html = "".join(valid_links)
     st.markdown(
         f"""
@@ -336,6 +343,10 @@ def apply_app_theme() -> None:
         text-decoration: none;
     }
 
+    .cci-author-link-text {
+        cursor: text;
+    }
+
     .cci-author-link:hover {
         text-decoration: underline;
     }
@@ -361,10 +372,17 @@ def apply_app_theme() -> None:
         )
 
 
-def render_card(title: str, value: str, body: str, tone: str = "blue") -> None:
+def render_card(
+    title: str,
+    value: str,
+    body: str,
+    tone: str = "blue",
+    *,
+    min_height: int = 160,
+) -> None:
     st.markdown(
         f"""
-        <div class="cci-card cci-card-{tone}">
+        <div class="cci-card cci-card-{tone}" style="min-height: {min_height}px;">
             <div class="cci-card-title">{title}</div>
             <div class="cci-card-value">{value}</div>
             <div class="cci-card-body">{body}</div>
@@ -374,11 +392,12 @@ def render_card(title: str, value: str, body: str, tone: str = "blue") -> None:
     )
 
 
-def render_question(question: str, answer: str, detail: str = "") -> None:
+def render_question(question: str, answer: str, detail: str = "", *, min_height: int | None = None) -> None:
     detail_html = f'<div class="cci-question-detail">{detail}</div>' if detail else ""
+    min_height_style = f'style="min-height: {min_height}px;"' if min_height is not None else ""
     st.markdown(
         f"""
-        <div class="cci-question">
+        <div class="cci-question" {min_height_style}>
             <div class="cci-question-title">{question}</div>
             <div class="cci-question-answer">{answer}</div>
             {detail_html}

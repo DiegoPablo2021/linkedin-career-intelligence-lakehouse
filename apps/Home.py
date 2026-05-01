@@ -27,7 +27,7 @@ AUTHOR_IMAGE_URL = "https://github.com/DiegoPablo2021.png?size=240"
 AUTHOR_EMAIL = "mailto:diegopmenezes@hotmail.com"
 AUTHOR_PORTFOLIO = "https://diego-pablo.vercel.app/"
 AUTHOR_GITHUB = "https://github.com/DiegoPablo2021/"
-AUTHOR_LINKEDIN = "https://www.linkedin.com/in/diegopmenezes/"
+AUTHOR_LINKEDIN = "https://www.linkedin.com/in/diego-pablo/"
 
 configure_page("LinkedIn Career Intelligence")
 
@@ -92,7 +92,6 @@ df_home = load_home_summary()
 df_connections = load_connections_overview()
 df_profile = load_profile_overview()
 
-st.title(ui_text("LinkedIn Career Intelligence", "LinkedIn Career Intelligence"))
 st.markdown(
     f"""
     <div class="cci-hero">
@@ -117,7 +116,7 @@ render_author_spotlight(
     role=AUTHOR_ROLE,
     image_url=AUTHOR_IMAGE_URL,
     links=[
-        ("E-mail", AUTHOR_EMAIL),
+        ("E-mail: diegopmenezes@hotmail.com", "text:email"),
         ("WhatsApp", whatsapp_url),
         ("Portfólio", AUTHOR_PORTFOLIO),
         ("GitHub", AUTHOR_GITHUB),

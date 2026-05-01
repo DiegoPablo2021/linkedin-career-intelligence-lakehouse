@@ -29,6 +29,8 @@ CSV exportados do LinkedIn
 -> publicação em GitHub / portfólio
 ```
 
+O diagrama no topo do README continua representando o fluxo atual do projeto.
+
 ## Domínios já cobertos
 
 - Profile
@@ -137,6 +139,12 @@ Execute o comando a partir da pasta `linkedin_career_intelligence_dbt/`.
 
 ```powershell
 streamlit run apps\Home.py
+```
+
+No ambiente local atual, a abertura em rede foi estabilizada para o IP:
+
+```text
+http://192.168.1.101:8501/
 ```
 
 Se quiser testar explicitamente o modo público com a base sanitizada:
@@ -288,5 +296,5 @@ Próximos passos naturais para entrega pública:
 Diego Pablo  
 GitHub: https://github.com/DiegoPablo2021/  
 Portfolio: https://diego-pablo.vercel.app/  
-LinkedIn: https://www.linkedin.com/feed/  
+LinkedIn: https://www.linkedin.com/in/diego-pablo/  
 E-mail: diegopmenezes@hotmail.com

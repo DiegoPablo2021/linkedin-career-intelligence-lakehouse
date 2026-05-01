@@ -92,10 +92,34 @@ first_date = pd.to_datetime(summary["first_recommendation_date"], errors="coerce
 last_date = pd.to_datetime(summary["last_recommendation_date"], errors="coerce")
 
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Total de recomendações", f"{total_recommendations}")
-c2.metric("Tamanho médio do texto", f"{avg_text_length}")
-c3.metric("Menções a data", f"{mentions_data_count}")
-c4.metric("Menções a teamwork", f"{mentions_teamwork_count}")
+with c1:
+    render_card(
+        "Total de recomendações",
+        f"{total_recommendations}",
+        "Volume total de recomendações recebidas e tratadas no pipeline.",
+        tone="blue",
+    )
+with c2:
+    render_card(
+        "Tamanho médio do texto",
+        f"{avg_text_length}",
+        "Média de caracteres por recomendação, útil para leitura da profundidade narrativa.",
+        tone="teal",
+    )
+with c3:
+    render_card(
+        "Menções a data",
+        f"{mentions_data_count}",
+        "Ocorrências classificadas com sinais ligados a dados e analytics.",
+        tone="violet",
+    )
+with c4:
+    render_card(
+        "Menções a teamwork",
+        f"{mentions_teamwork_count}",
+        "Ocorrências classificadas com sinais de colaboração e trabalho em equipe.",
+        tone="gold",
+    )
 st.caption(
     "Período coberto: "
     f"{first_date.strftime('%Y-%m-%d') if pd.notnull(first_date) else '-'}"
@@ -142,11 +166,13 @@ with right:
                 str(row["visibility"]),
                 f"Todas as {int(row['total_recommendations'])} recomendações caem na mesma categoria de visibilidade.",
                 tone="teal",
+                min_height=156,
             )
             render_question(
                 "Esse gráfico ajuda mesmo?",
                 "Neste caso, não muito.",
                 "Como só existe uma classe de visibilidade, o resumo executivo comunica melhor do que uma barra isolada.",
+                min_height=156,
             )
 
 st.divider()
