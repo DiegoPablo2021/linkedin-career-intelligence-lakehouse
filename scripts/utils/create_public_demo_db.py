@@ -46,6 +46,10 @@ SAFE_TEXT_COLUMNS = {
     ),
 }
 NULL_COLUMNS = {"address", "zip_code", "birth_date"}
+PUBLIC_URL_EXACT_VALUES = {
+    "https://diego-pablo.vercel.app/",
+}
+PUBLIC_URL_COLUMNS = {"portfolio_website"}
 
 
 def tokenize_series(series: pd.Series, prefix: str, formatter: Callable[[int], str] | None = None) -> pd.Series:
@@ -61,7 +65,10 @@ def mask_email_series(series: pd.Series) -> pd.Series:
 
 
 def mask_url_series(series: pd.Series, slug: str) -> pd.Series:
-    return tokenize_series(series, slug, formatter=lambda index: f"https://example.com/{slug}/{index:03d}")
+    cleaned = series.astype("string")
+    preserved = cleaned.isin(PUBLIC_URL_EXACT_VALUES)
+    masked = tokenize_series(cleaned.where(~preserved, pd.NA), slug, formatter=lambda index: f"https://example.com/{slug}/{index:03d}")
+    return masked.where(~preserved, cleaned)
 
 
 def is_person_column(column_name: str) -> bool:
@@ -121,6 +128,10 @@ def sanitize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
         if normalized in NULL_COLUMNS:
             sanitized[column] = pd.Series([pd.NA] * len(sanitized), dtype="string")
+            continue
+
+        if normalized in PUBLIC_URL_COLUMNS:
+            sanitized[column] = series.astype("string").str.strip()
             continue
 
         if not is_textual_series(series):
