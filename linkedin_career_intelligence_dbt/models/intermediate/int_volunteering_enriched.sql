@@ -6,9 +6,9 @@ select
     finished_on,
     description,
     is_current_volunteering,
-    trim(lower(company_name)) as company_name_clean,
-    trim(lower(role)) as role_clean,
-    trim(lower(coalesce(cause, 'sem_causa'))) as cause_clean,
+    {{ lower_trim_text('company_name') }} as company_name_clean,
+    {{ lower_trim_text('role') }} as role_clean,
+    {{ lower_trim_text("coalesce(cause, 'sem_causa')") }} as cause_clean,
     case
         when finished_on is null then current_date
         else finished_on

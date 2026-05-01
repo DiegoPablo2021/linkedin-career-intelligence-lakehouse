@@ -1,4 +1,4 @@
 select
-    trim(name) as name,
-    trim(proficiency) as proficiency
+    {{ trim_text('name') }} as name,
+    {{ trim_text('proficiency') }} as proficiency
 from {{ source('bronze', 'languages') }}

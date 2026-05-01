@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Callable
 
 import pandas as pd
 
 from linkedin_career_intelligence.config import ProjectSettings, get_settings
+from linkedin_career_intelligence.contracts import TableContract, assert_contract
 from linkedin_career_intelligence.duckdb_utils import write_dataframe_to_bronze
 
 
@@ -19,6 +22,7 @@ class TableConfig:
     csv_name: str
     export_type: str
     transform: TransformFn
+    contract: TableContract
     read_kwargs: dict = field(default_factory=dict)
 
 
@@ -90,6 +94,37 @@ def drop_blank_rows(df: pd.DataFrame, required_columns: list[str]) -> pd.DataFra
 
 def select_columns(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     return df.loc[:, columns].copy()
+
+
+def deduplicate_rows(df: pd.DataFrame, subset: list[str] | None = None) -> pd.DataFrame:
+    return df.drop_duplicates(subset=subset).reset_index(drop=True)
+
+
+def build_ingestion_audit_row(
+    table: TableConfig,
+    csv_path: Path,
+    cleaned: pd.DataFrame,
+    duplicate_rows: int,
+) -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "table_key": table.key,
+                "bronze_table": table.bronze_table,
+                "source_file": table.csv_name,
+                "source_path": str(csv_path),
+                "export_type": table.export_type,
+                "row_count": len(cleaned),
+                "column_count": len(cleaned.columns),
+                "duplicate_rows_after_transform": duplicate_rows,
+                "contract_owner": table.contract.owner,
+                "contract_description": table.contract.description,
+                "required_columns": ", ".join(table.contract.required_columns),
+                "sensitive_columns": ", ".join(table.contract.sensitive_columns),
+                "loaded_at_utc": datetime.now(timezone.utc),
+            }
+        ]
+    )
 
 
 def transform_connections(df: pd.DataFrame) -> pd.DataFrame:
@@ -268,7 +303,7 @@ def transform_endorsement_received_info(df: pd.DataFrame) -> pd.DataFrame:
     )
     cleaned = parse_date_columns(cleaned, ["endorsement_date"])
     cleaned = drop_blank_rows(cleaned, ["skill_name"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(
         cleaned,
         [
@@ -288,7 +323,7 @@ def transform_company_follows(df: pd.DataFrame) -> pd.DataFrame:
     cleaned = clean_text_columns(cleaned, ["organization"])
     cleaned = parse_date_columns(cleaned, ["followed_on"])
     cleaned = drop_blank_rows(cleaned, ["organization"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(cleaned, ["organization", "followed_on"])
 
 
@@ -331,7 +366,7 @@ def transform_recommendations_received(df: pd.DataFrame) -> pd.DataFrame:
         errors="coerce",
     )
     cleaned = drop_blank_rows(cleaned, ["recommendation_text"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(
         cleaned,
         [
@@ -352,7 +387,7 @@ def transform_skills(df: pd.DataFrame) -> pd.DataFrame:
     cleaned = cleaned.rename(columns={"name": "skill_name"})
     cleaned = clean_text_columns(cleaned, ["skill_name"])
     cleaned = drop_blank_rows(cleaned, ["skill_name"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(cleaned, ["skill_name"])
 
 
@@ -367,7 +402,7 @@ def transform_phone_numbers(df: pd.DataFrame) -> pd.DataFrame:
     )
     cleaned = clean_text_columns(cleaned, ["extension", "phone_number", "phone_type"])
     cleaned = drop_blank_rows(cleaned, ["phone_number"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(cleaned, ["extension", "phone_number", "phone_type"])
 
 
@@ -384,7 +419,7 @@ def transform_email_addresses(df: pd.DataFrame) -> pd.DataFrame:
     cleaned.loc[cleaned["updated_on"] == "Not Available", "updated_on"] = pd.NA
     cleaned = parse_boolean_columns(cleaned, ["confirmed", "primary"])
     cleaned = drop_blank_rows(cleaned, ["email_address"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(cleaned, ["email_address", "confirmed", "primary", "updated_on"])
 
 
@@ -412,7 +447,7 @@ def transform_saved_job_alerts(df: pd.DataFrame) -> pd.DataFrame:
     cleaned = ensure_columns(cleaned, ["alert_parameters", "query_context", "saved_search_id"])
     cleaned = clean_text_columns(cleaned, ["alert_parameters", "query_context", "saved_search_id"])
     cleaned = drop_blank_rows(cleaned, ["saved_search_id"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(cleaned, ["alert_parameters", "query_context", "saved_search_id"])
 
 
@@ -426,7 +461,7 @@ def transform_volunteering(df: pd.DataFrame) -> pd.DataFrame:
     cleaned = parse_date_columns(cleaned, ["started_on", "finished_on"])
     cleaned["is_current_volunteering"] = cleaned["finished_on"].isna()
     cleaned = drop_blank_rows(cleaned, ["company_name", "role"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(
         cleaned,
         [
@@ -480,7 +515,7 @@ def transform_invitations(df: pd.DataFrame) -> pd.DataFrame:
         errors="coerce",
     )
     cleaned = drop_blank_rows(cleaned, ["sender_name", "recipient_name", "direction"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(
         cleaned,
         [
@@ -513,7 +548,7 @@ def transform_events(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     cleaned = drop_blank_rows(cleaned, ["event_name"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(
         cleaned,
         ["event_name", "event_time", "status", "external_url", "started_at", "finished_at"],
@@ -549,7 +584,7 @@ def transform_learning(df: pd.DataFrame) -> pd.DataFrame:
     cleaned = parse_date_columns(cleaned, ["last_watched_at", "completed_at"])
     cleaned = parse_boolean_columns(cleaned, ["content_saved"])
     cleaned = drop_blank_rows(cleaned, ["content_title"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(
         cleaned,
         [
@@ -609,7 +644,7 @@ def transform_job_applications(df: pd.DataFrame) -> pd.DataFrame:
         errors="coerce",
     )
     cleaned = drop_blank_rows(cleaned, ["company_name", "job_title"])
-    cleaned = cleaned.drop_duplicates()
+    cleaned = deduplicate_rows(cleaned)
     return select_columns(
         cleaned,
         [
@@ -632,6 +667,19 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Connections.csv",
         export_type="complete",
         transform=transform_connections,
+        contract=TableContract(
+            required_columns=(
+                "first_name",
+                "last_name",
+                "url",
+                "email_address",
+                "company",
+                "position",
+                "connected_on",
+            ),
+            sensitive_columns=("first_name", "last_name", "email_address", "url"),
+            description="Professional network connections exported from LinkedIn.",
+        ),
         read_kwargs={"skiprows": 3},
     ),
     "positions": TableConfig(
@@ -640,6 +688,19 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Positions.csv",
         export_type="basic",
         transform=transform_positions,
+        contract=TableContract(
+            required_columns=(
+                "company_name",
+                "title",
+                "description",
+                "location",
+                "started_on",
+                "finished_on",
+                "is_current",
+            ),
+            sensitive_columns=("description",),
+            description="Professional positions and career history.",
+        ),
     ),
     "profile": TableConfig(
         key="profile",
@@ -647,6 +708,35 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Profile.csv",
         export_type="basic",
         transform=transform_profile,
+        contract=TableContract(
+            required_columns=(
+                "first_name",
+                "last_name",
+                "maiden_name",
+                "address",
+                "birth_date",
+                "headline",
+                "summary",
+                "industry",
+                "zip_code",
+                "geo_location",
+                "twitter_handles",
+                "websites",
+                "instant_messengers",
+            ),
+            sensitive_columns=(
+                "first_name",
+                "last_name",
+                "maiden_name",
+                "address",
+                "birth_date",
+                "zip_code",
+                "twitter_handles",
+                "websites",
+                "instant_messengers",
+            ),
+            description="Primary LinkedIn member profile and identity attributes.",
+        ),
     ),
     "languages": TableConfig(
         key="languages",
@@ -654,6 +744,10 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Languages.csv",
         export_type="basic",
         transform=transform_languages,
+        contract=TableContract(
+            required_columns=("name", "proficiency"),
+            description="Languages and proficiencies listed on the profile.",
+        ),
     ),
     "education": TableConfig(
         key="education",
@@ -661,6 +755,18 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Education.csv",
         export_type="basic",
         transform=transform_education,
+        contract=TableContract(
+            required_columns=(
+                "school_name",
+                "degree_name",
+                "notes",
+                "started_on",
+                "finished_on",
+                "is_current_education",
+            ),
+            sensitive_columns=("notes",),
+            description="Academic background and education timeline.",
+        ),
     ),
     "certifications": TableConfig(
         key="certifications",
@@ -668,6 +774,18 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Certifications.csv",
         export_type="basic",
         transform=transform_certifications,
+        contract=TableContract(
+            required_columns=(
+                "name",
+                "url",
+                "authority",
+                "started_on",
+                "finished_on",
+                "license_number",
+            ),
+            sensitive_columns=("license_number", "url"),
+            description="Certifications and credential metadata.",
+        ),
     ),
     "endorsement_received_info": TableConfig(
         key="endorsement_received_info",
@@ -675,6 +793,28 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Endorsement_Received_Info.csv",
         export_type="basic",
         transform=transform_endorsement_received_info,
+        contract=TableContract(
+            required_columns=(
+                "endorsement_date",
+                "skill_name",
+                "endorser_first_name",
+                "endorser_last_name",
+                "endorser_public_url",
+                "endorsement_status",
+            ),
+            unique_columns=(
+                "endorsement_date",
+                "skill_name",
+                "endorser_first_name",
+                "endorser_last_name",
+            ),
+            sensitive_columns=(
+                "endorser_first_name",
+                "endorser_last_name",
+                "endorser_public_url",
+            ),
+            description="Received endorsements grouped by skill and endorser.",
+        ),
     ),
     "company_follows": TableConfig(
         key="company_follows",
@@ -682,6 +822,11 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Company Follows.csv",
         export_type="complete",
         transform=transform_company_follows,
+        contract=TableContract(
+            required_columns=("organization", "followed_on"),
+            unique_columns=("organization", "followed_on"),
+            description="Organizations followed by the member.",
+        ),
     ),
     "recommendations_received": TableConfig(
         key="recommendations_received",
@@ -689,6 +834,20 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Recommendations_Received.csv",
         export_type="complete",
         transform=transform_recommendations_received,
+        contract=TableContract(
+            required_columns=(
+                "first_name",
+                "last_name",
+                "company",
+                "position",
+                "recommendation_text",
+                "recommendation_date",
+                "visibility",
+            ),
+            unique_columns=("first_name", "last_name", "recommendation_date"),
+            sensitive_columns=("first_name", "last_name", "recommendation_text"),
+            description="Text recommendations received from professional contacts.",
+        ),
     ),
     "skills": TableConfig(
         key="skills",
@@ -696,6 +855,11 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Skills.csv",
         export_type="complete",
         transform=transform_skills,
+        contract=TableContract(
+            required_columns=("skill_name",),
+            unique_columns=("skill_name",),
+            description="Unique skills listed by the member.",
+        ),
     ),
     "phone_numbers": TableConfig(
         key="phone_numbers",
@@ -703,6 +867,12 @@ TABLES: dict[str, TableConfig] = {
         csv_name="PhoneNumbers.csv",
         export_type="basic",
         transform=transform_phone_numbers,
+        contract=TableContract(
+            required_columns=("extension", "phone_number", "phone_type"),
+            unique_columns=("phone_number", "phone_type"),
+            sensitive_columns=("extension", "phone_number"),
+            description="Phone numbers registered in the profile account.",
+        ),
         read_kwargs={"dtype": "string"},
     ),
     "email_addresses": TableConfig(
@@ -711,6 +881,12 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Email Addresses.csv",
         export_type="basic",
         transform=transform_email_addresses,
+        contract=TableContract(
+            required_columns=("email_address", "confirmed", "primary", "updated_on"),
+            unique_columns=("email_address",),
+            sensitive_columns=("email_address",),
+            description="Account email addresses and confirmation flags.",
+        ),
         read_kwargs={"dtype": "string"},
     ),
     "registration": TableConfig(
@@ -719,6 +895,11 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Registration.csv",
         export_type="basic",
         transform=transform_registration,
+        contract=TableContract(
+            required_columns=("registered_at", "registration_ip", "subscription_types"),
+            sensitive_columns=("registration_ip",),
+            description="Registration metadata for the account.",
+        ),
         read_kwargs={"dtype": "string"},
     ),
     "saved_job_alerts": TableConfig(
@@ -727,6 +908,11 @@ TABLES: dict[str, TableConfig] = {
         csv_name="SavedJobAlerts.csv",
         export_type="complete",
         transform=transform_saved_job_alerts,
+        contract=TableContract(
+            required_columns=("alert_parameters", "query_context", "saved_search_id"),
+            unique_columns=("saved_search_id",),
+            description="Saved job alerts and search parameters.",
+        ),
         read_kwargs={"dtype": "string"},
     ),
     "volunteering": TableConfig(
@@ -735,6 +921,20 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Volunteering.csv",
         export_type="basic",
         transform=transform_volunteering,
+        contract=TableContract(
+            required_columns=(
+                "company_name",
+                "role",
+                "cause",
+                "started_on",
+                "finished_on",
+                "description",
+                "is_current_volunteering",
+            ),
+            unique_columns=("company_name", "role", "started_on"),
+            sensitive_columns=("description",),
+            description="Volunteering experiences and associated causes.",
+        ),
     ),
     "invitations": TableConfig(
         key="invitations",
@@ -742,6 +942,26 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Invitations.csv",
         export_type="complete",
         transform=transform_invitations,
+        contract=TableContract(
+            required_columns=(
+                "sender_name",
+                "recipient_name",
+                "sent_at",
+                "message",
+                "direction",
+                "inviter_profile_url",
+                "invitee_profile_url",
+            ),
+            unique_columns=("sender_name", "recipient_name", "sent_at", "direction"),
+            sensitive_columns=(
+                "sender_name",
+                "recipient_name",
+                "message",
+                "inviter_profile_url",
+                "invitee_profile_url",
+            ),
+            description="Invitations sent and received through LinkedIn.",
+        ),
     ),
     "events": TableConfig(
         key="events",
@@ -749,6 +969,19 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Events.csv",
         export_type="complete",
         transform=transform_events,
+        contract=TableContract(
+            required_columns=(
+                "event_name",
+                "event_time",
+                "status",
+                "external_url",
+                "started_at",
+                "finished_at",
+            ),
+            unique_columns=("event_name", "event_time"),
+            sensitive_columns=("external_url",),
+            description="Events tracked by LinkedIn, including attendance status.",
+        ),
     ),
     "learning": TableConfig(
         key="learning",
@@ -756,6 +989,20 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Learning.csv",
         export_type="complete",
         transform=transform_learning,
+        contract=TableContract(
+            required_columns=(
+                "content_title",
+                "content_description",
+                "content_type",
+                "last_watched_at",
+                "completed_at",
+                "content_saved",
+                "notes_taken",
+            ),
+            unique_columns=("content_title", "last_watched_at", "completed_at"),
+            sensitive_columns=("notes_taken",),
+            description="LinkedIn Learning content activity and completion status.",
+        ),
     ),
     "job_applications": TableConfig(
         key="job_applications",
@@ -763,6 +1010,26 @@ TABLES: dict[str, TableConfig] = {
         csv_name="Jobs/Job Applications.csv",
         export_type="complete",
         transform=transform_job_applications,
+        contract=TableContract(
+            required_columns=(
+                "application_date",
+                "contact_email",
+                "contact_phone_number",
+                "company_name",
+                "job_title",
+                "job_url",
+                "resume_name",
+                "question_and_answers",
+            ),
+            unique_columns=("company_name", "job_title", "application_date"),
+            sensitive_columns=(
+                "contact_email",
+                "contact_phone_number",
+                "job_url",
+                "question_and_answers",
+            ),
+            description="Job applications and related contact metadata.",
+        ),
         read_kwargs={"dtype": "string"},
     ),
 }
@@ -774,7 +1041,20 @@ def load_table(key: str, settings: ProjectSettings | None = None) -> pd.DataFram
     csv_path = settings.export_dir(table.export_type) / table.csv_name
     df = read_csv_safe(csv_path, **table.read_kwargs)
     cleaned = table.transform(df)
-    write_dataframe_to_bronze(cleaned, table.bronze_table)
+    validation = assert_contract(cleaned, table.contract)
+    write_dataframe_to_bronze(cleaned, table.bronze_table, settings=settings)
+    audit_row = build_ingestion_audit_row(
+        table,
+        csv_path,
+        cleaned,
+        duplicate_rows=validation.duplicate_rows,
+    )
+    write_dataframe_to_bronze(
+        audit_row,
+        "ingestion_audit",
+        mode="append",
+        settings=settings,
+    )
     return cleaned
 
 

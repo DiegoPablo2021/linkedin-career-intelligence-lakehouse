@@ -210,7 +210,7 @@ with right:
         st.caption(ui_text("Contatos diretos ficam ocultos na demo pública.", "Direct contact details stay hidden in the public demo."))
     else:
         st.markdown("**GitHub:** [github.com/DiegoPablo2021](https://github.com/DiegoPablo2021/)")
-        st.markdown("**LinkedIn:** [linkedin.com/feed](https://www.linkedin.com/feed/)")
+        st.markdown("**LinkedIn:** [linkedin.com/in/diegopmenezes](https://www.linkedin.com/in/diegopmenezes/)")
         st.markdown("**E-mail:** diegopmenezes@hotmail.com")
 
 st.divider()

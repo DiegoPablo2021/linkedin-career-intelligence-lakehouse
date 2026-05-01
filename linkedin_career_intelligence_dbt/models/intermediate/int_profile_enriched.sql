@@ -1,15 +1,15 @@
 select
     *,
 
-    lower(trim(first_name)) as first_name_clean,
-    lower(trim(last_name)) as last_name_clean,
+    {{ lower_trim_text('first_name') }} as first_name_clean,
+    {{ lower_trim_text('last_name') }} as last_name_clean,
 
-    lower(trim(coalesce(industry, ''))) as industry_clean,
+    {{ lower_trim_text("coalesce(industry, '')") }} as industry_clean,
 
     case
         when websites like '[PERSONAL:%'
             then regexp_extract(websites, '\\[PERSONAL:(.+)\\]', 1)
-        else nullif(trim(websites), '')
+        else {{ nullif_trim_text('websites') }}
     end as primary_contact_url,
 
     case

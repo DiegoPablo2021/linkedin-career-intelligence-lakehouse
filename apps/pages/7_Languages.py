@@ -1,49 +1,51 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
 
 from linkedin_career_intelligence.streamlit_utils import (
-    apply_app_theme,
-    apply_straight_xticks,
+    apply_label_mapping,
+    apply_title_case,
+    configure_page,
+    load_query,
     render_card,
+    render_dataframe,
+    render_horizontal_bar_chart,
+    render_metric_row,
     render_question,
-    run_query,
-    style_matplotlib,
+    render_time_series_chart,
 )
 
 
-st.set_page_config(page_title="Languages", layout="wide")
-apply_app_theme()
+configure_page("Languages", "Análise dos idiomas e níveis de proficiência")
 
 
-@st.cache_data
 def load_languages_summary() -> pd.DataFrame:
-    query = """
+    return load_query(
+        """
         select
             proficiency_track,
             total_languages,
             unique_languages
         from main.mart_languages_summary
         order by total_languages desc, proficiency_track asc
-    """
-    return run_query(query)
+        """
+    )
 
 
-@st.cache_data
 def load_languages_overview() -> pd.DataFrame:
-    query = """
+    return load_query(
+        """
         select
             count(*) as total_language_records,
             count(distinct language_name_clean) as total_unique_languages,
             count(distinct proficiency_clean) as total_unique_proficiencies
         from main.int_languages_enriched
-    """
-    return run_query(query)
+        """
+    )
 
 
-@st.cache_data
 def load_languages_detail() -> pd.DataFrame:
-    query = """
+    return load_query(
+        """
         select
             name,
             proficiency,
@@ -52,43 +54,31 @@ def load_languages_detail() -> pd.DataFrame:
             proficiency_track
         from main.int_languages_enriched
         order by language_name_clean asc
-    """
-    return run_query(query)
+        """
+    )
 
 
-@st.cache_data
 def load_language_distribution() -> pd.DataFrame:
-    query = """
+    return load_query(
+        """
         select
             language_name_clean,
             count(*) as total_records
         from main.int_languages_enriched
         group by language_name_clean
         order by total_records desc, language_name_clean asc
-    """
-    return run_query(query)
+        """
+    )
 
 
-def format_title_case(value: str) -> str:
-    if value is None:
-        return ""
-    return str(value).strip().title()
-
-
-def format_track_label(value: str) -> str:
-    mapping = {
-        "nativo": "Nativo",
-        "fluente": "Fluente",
-        "profissional": "Profissional",
-        "intermediario_profissional": "Intermediário Profissional",
-        "basico": "Básico",
-        "outros": "Outros",
-    }
-    return mapping.get(str(value), str(value).title())
-
-
-st.title("Languages")
-st.subheader("Análise dos idiomas e níveis de proficiência")
+PROFICIENCY_TRACK_LABELS = {
+    "nativo": "Nativo",
+    "fluente": "Fluente",
+    "profissional": "Profissional",
+    "intermediario_profissional": "Intermediário Profissional",
+    "basico": "Básico",
+    "outros": "Outros",
+}
 
 df_summary = load_languages_summary()
 df_overview = load_languages_overview()
@@ -96,15 +86,14 @@ df_detail = load_languages_detail()
 df_distribution = load_language_distribution()
 
 if not df_summary.empty:
-    df_summary["proficiency_track"] = df_summary["proficiency_track"].apply(format_track_label)
+    df_summary = apply_label_mapping(df_summary, "proficiency_track", PROFICIENCY_TRACK_LABELS)
 
 if not df_detail.empty:
-    df_detail["name"] = df_detail["name"].fillna("").apply(format_title_case)
-    df_detail["language_name_clean"] = df_detail["language_name_clean"].fillna("").apply(format_title_case)
-    df_detail["proficiency_track"] = df_detail["proficiency_track"].apply(format_track_label)
+    df_detail = apply_title_case(df_detail, ["name", "language_name_clean"])
+    df_detail = apply_label_mapping(df_detail, "proficiency_track", PROFICIENCY_TRACK_LABELS)
 
 if not df_distribution.empty:
-    df_distribution["language_name_clean"] = df_distribution["language_name_clean"].apply(format_title_case)
+    df_distribution = apply_title_case(df_distribution, ["language_name_clean"])
 
 if not df_overview.empty:
     overview_row = df_overview.iloc[0]
@@ -116,25 +105,31 @@ else:
     total_unique_languages = 0
     total_unique_proficiencies = 0
 
-c1, c2, c3 = st.columns(3)
-c1.metric("Total de registros", f"{total_language_records}")
-c2.metric("Idiomas únicos", f"{total_unique_languages}")
-c3.metric("Proficiências únicas", f"{total_unique_proficiencies}")
+render_metric_row(
+    [
+        ("Total de registros", total_language_records),
+        ("Idiomas únicos", total_unique_languages),
+        ("Proficiências únicas", total_unique_proficiencies),
+    ]
+)
 
 st.divider()
 
 st.markdown("## Distribuição por trilha de proficiência")
 
 if not df_summary.empty and len(df_summary) > 1:
-    fig1, ax1 = plt.subplots(figsize=(10, 5))
-    ax1.bar(df_summary["proficiency_track"], df_summary["total_languages"], color="#4EA1FF")
-    ax1.set_title("Quantidade de registros por trilha de proficiência")
-    ax1.set_xlabel("Trilha")
-    ax1.set_ylabel("Quantidade")
-    apply_straight_xticks(ax1, df_summary["proficiency_track"].astype(str).tolist(), max_ticks=6)
-    style_matplotlib(fig1, ax1)
-    plt.tight_layout()
-    st.pyplot(fig1)
+    render_time_series_chart(
+        df_summary,
+        x_labels=df_summary["proficiency_track"].astype(str).tolist(),
+        y_column="total_languages",
+        title="Quantidade de registros por trilha de proficiência",
+        x_label="Trilha",
+        y_label="Quantidade",
+        color="#4EA1FF",
+        kind="bar",
+        max_ticks=6,
+        figsize=(10, 5),
+    )
 else:
     if not df_detail.empty:
         language_row = df_detail.iloc[0]
@@ -176,15 +171,16 @@ else:
 st.markdown("## Idiomas registrados")
 
 if not df_distribution.empty and len(df_distribution) > 1:
-    fig2, ax2 = plt.subplots(figsize=(10, 5))
-    ax2.barh(df_distribution["language_name_clean"], df_distribution["total_records"], color="#26C6DA")
-    ax2.set_title("Idiomas registrados")
-    ax2.set_xlabel("Quantidade")
-    ax2.set_ylabel("Idioma")
-    ax2.invert_yaxis()
-    style_matplotlib(fig2, ax2)
-    plt.tight_layout()
-    st.pyplot(fig2)
+    render_horizontal_bar_chart(
+        df_distribution,
+        label_column="language_name_clean",
+        value_column="total_records",
+        title="Idiomas registrados",
+        x_label="Quantidade",
+        y_label="Idioma",
+        color="#26C6DA",
+        figsize=(10, 5),
+    )
 else:
     if not df_distribution.empty:
         st.info("A base atual registra apenas um idioma, então a visualização foi substituída por leitura executiva acima.")
@@ -200,10 +196,10 @@ tab1, tab2 = st.tabs(
 )
 
 with tab1:
-    st.dataframe(df_summary, width="stretch")
+    render_dataframe(df_summary)
 
 with tab2:
-    st.dataframe(df_detail, width="stretch")
+    render_dataframe(df_detail)
 
 st.markdown("## Leitura inicial dos dados")
 

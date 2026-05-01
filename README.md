@@ -13,6 +13,7 @@ Construir um case de nível profissional que mostre:
 
 - ingestão estruturada de múltiplos arquivos do export do LinkedIn
 - organização por camadas `raw -> bronze -> staging -> intermediate -> marts -> app`
+- contratos de dados explícitos na ingestão, com colunas obrigatórias e trilha de auditoria
 - modelagem e testes analíticos com dbt
 - consumo em aplicativo Streamlit com visão executiva e exploratória
 - separação clara entre exploração em notebooks e pipeline reproduzível
@@ -52,7 +53,10 @@ CSV exportados do LinkedIn
 
 - `linkedin_career_intelligence/`: pacote principal com configuração, utilitários DuckDB, helpers Streamlit e lógica de ingestão
 - `scripts/run_ingestion.py`: carga consolidada das tabelas suportadas
+- `scripts/ingestion/_cli.py`: runner reutilizável para cargas unitárias por tabela
 - `scripts/run_pipeline.py`: execução end-to-end com ingestão, inventário e dbt
+- `scripts/run_validation.py`: validação completa com `pytest`, `sqlfluff`, bootstrap sintético e `dbt build`
+- `scripts/ci/bootstrap_validation_warehouse.py`: geração de warehouse sintético para CI e testes analíticos reproduzíveis
 - `scripts/profiling/`: inventário técnico dos exports e artefatos de profiling
 - `scripts/utils/`: inspeções operacionais do warehouse
 - `linkedin_career_intelligence_dbt/`: staging, intermediate, marts, testes e configuração dbt
@@ -65,6 +69,13 @@ CSV exportados do LinkedIn
 - `docs/`: documentação complementar da arquitetura, operação e publicação
 
 ## Aplicativo Streamlit
+
+O app agora traz uma Home mais orientada a apresentação do case:
+
+- hero executivo do projeto
+- bloco de autor com links principais
+- banner de demo pública com layout estável
+- páginas por domínio com helpers visuais reutilizáveis
 
 Páginas disponíveis hoje:
 
@@ -141,6 +152,19 @@ streamlit run apps\Home.py
 python scripts\run_pipeline.py
 ```
 
+### 6. Rodar a validação completa de engenharia
+
+```powershell
+python scripts\run_validation.py
+```
+
+Esse fluxo executa:
+
+- testes Python com `pytest`
+- lint SQL com `sqlfluff`
+- bootstrap de um warehouse sintético de validação
+- `dbt build` completo contra a base sintética
+
 ## Modelagem do projeto
 
 ### Bronze
@@ -154,6 +178,7 @@ Camada física carregada pelo Python para o DuckDB com tabelas como:
 - `bronze.invitations`
 - `bronze.learning`
 - `bronze.job_applications`
+- `bronze.ingestion_audit`
 
 ### Staging
 
@@ -197,6 +222,8 @@ Camada final para consumo do app:
 - notebooks são usados para exploração e validação, não para ETL oficial
 - `intermediate` é mantida apenas quando gera enriquecimento reaproveitável
 - páginas do app são orientadas por domínio de negócio, não necessariamente uma por CSV
+- a camada Python mantém contratos de dados por tabela para explicitar colunas obrigatórias, sensibilidade e contexto de governança
+- cada carga registra auditoria em `bronze.ingestion_audit`, permitindo rastrear origem, volume e contrato aplicado
 - artefatos gerados como `target`, `logs`, `dbt_packages`, `pyc` e `.duckdb` foram ocultados do editor para reduzir ruído operacional
 
 ## Qualidade e operação
@@ -204,7 +231,10 @@ Camada final para consumo do app:
 - `pytest` para regras Python
 - `dbt build` para modelos e testes analíticos
 - `sqlfluff` configurado para DuckDB + dbt
+- macros dbt de sanitização textual para proteger o app contra variações de tipo nos exports reais
 - `inspect_warehouse.py` para inspecionar o banco local sem precisar abrir o arquivo binário `.duckdb`
+- auditoria de ingestão persistida no próprio warehouse para suporte a troubleshooting e governança
+- CI no GitHub Actions com base sintética para validar o projeto sem depender dos exports privados
 
 ## Deploy público seguro
 
@@ -249,6 +279,9 @@ Próximos passos naturais para entrega pública:
 - [Portfolio Case](docs/portfolio_case.md)
 - [Data Dictionary](docs/data_dictionary.md)
 - [Runbook](docs/runbook.md)
+- [Guia Rápido e Documentação](docs/guia_rapido_e_documentacao.md)
+- [Explicação do Projeto](docs/project_overview_explanation.md)
+- [Explicação Técnica](docs/technical_explanation.md)
 
 ## Autor
 

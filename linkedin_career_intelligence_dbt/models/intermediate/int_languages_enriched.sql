@@ -2,8 +2,8 @@ select
     name,
     proficiency,
 
-    trim(lower(name)) as language_name_clean,
-    trim(lower(proficiency)) as proficiency_clean,
+    {{ lower_trim_text('name') }} as language_name_clean,
+    {{ lower_trim_text('proficiency') }} as proficiency_clean,
 
     case
         when proficiency_clean like '%native%' then 'nativo'

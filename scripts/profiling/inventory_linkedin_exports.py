@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import duckdb
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -14,6 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from linkedin_career_intelligence.config import get_settings
+from linkedin_career_intelligence.duckdb_utils import write_dataframe_to_bronze
 
 
 def ensure_output_directories(project_root: Path) -> dict[str, Path]:
@@ -237,22 +237,7 @@ def save_inventory_files(df_inventory: pd.DataFrame, output_paths: dict[str, Pat
 
 def save_inventory_to_duckdb(project_root: Path, df_inventory: pd.DataFrame) -> Path:
     db_path = get_settings().db_path
-
-    conn = duckdb.connect(str(db_path))
-    conn.execute("CREATE SCHEMA IF NOT EXISTS raw;")
-    conn.execute("CREATE SCHEMA IF NOT EXISTS bronze;")
-    conn.execute("CREATE SCHEMA IF NOT EXISTS silver;")
-    conn.execute("CREATE SCHEMA IF NOT EXISTS gold;")
-
-    conn.register("df_inventory_view", df_inventory)
-
-    conn.execute("""
-        CREATE OR REPLACE TABLE bronze.file_inventory AS
-        SELECT *
-        FROM df_inventory_view
-    """)
-
-    conn.close()
+    write_dataframe_to_bronze(df_inventory, "file_inventory")
     return db_path
 
 

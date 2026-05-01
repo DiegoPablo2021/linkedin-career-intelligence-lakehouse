@@ -2,8 +2,8 @@ select
     saved_search_id,
     alert_parameters,
     query_context,
-    nullif(trim(regexp_extract(query_context, 'keywords=([^,}]+)', 1)), '') as search_keywords,
-    lower(nullif(trim(regexp_extract(alert_parameters, 'frequency=([A-Z]+)', 1)), '')) as alert_frequency,
+    {{ nullif_trim_text("regexp_extract(query_context, 'keywords=([^,}]+)', 1)") }} as search_keywords,
+    lower({{ nullif_trim_text("regexp_extract(alert_parameters, 'frequency=([A-Z]+)', 1)") }}) as alert_frequency,
     case
         when lower(query_context) like '%workplacetype:2%' then true
         else false

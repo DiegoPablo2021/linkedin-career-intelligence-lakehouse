@@ -12,28 +12,34 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from linkedin_career_intelligence.streamlit_utils import (
-    apply_app_theme,
+    configure_page,
     render_card,
+    render_author_spotlight,
     render_question,
-    run_query,
-    safe_float,
+    load_query,
     safe_int,
     ui_text,
 )
 
+AUTHOR_NAME = "Diego Pablo"
+AUTHOR_ROLE = "Analista de Dados | Python | Power BI | SQL"
+AUTHOR_IMAGE_URL = "https://github.com/DiegoPablo2021.png?size=240"
+AUTHOR_EMAIL = "mailto:diegopmenezes@hotmail.com"
+AUTHOR_PORTFOLIO = "https://diego-pablo.vercel.app/"
+AUTHOR_GITHUB = "https://github.com/DiegoPablo2021/"
+AUTHOR_LINKEDIN = "https://www.linkedin.com/in/diegopmenezes/"
 
-st.set_page_config(page_title="LinkedIn Career Intelligence", layout="wide")
-apply_app_theme()
+configure_page("LinkedIn Career Intelligence")
 
 
 @st.cache_data
 def load_home_summary() -> pd.DataFrame:
-    return run_query("select * from main.mart_pipeline_health_summary")
+    return load_query("select * from main.mart_pipeline_health_summary")
 
 
 @st.cache_data
 def load_connections_overview() -> pd.DataFrame:
-    return run_query(
+    return load_query(
         """
         select
             sum(total_connections) as total_connections,
@@ -47,14 +53,16 @@ def load_connections_overview() -> pd.DataFrame:
 
 @st.cache_data
 def load_profile_overview() -> pd.DataFrame:
-    return run_query(
+    return load_query(
         """
         select
             first_name,
             last_name,
             profile_track,
             summary_size_category,
-            summary_length
+            summary_length,
+            primary_contact_url,
+            primary_contact_label
         from main.mart_profile_summary
         """
     )
@@ -95,6 +103,26 @@ st.markdown(
     </div>
     """,
     unsafe_allow_html=True,
+)
+
+whatsapp_url = ""
+if not df_profile.empty and pd.notna(df_profile.iloc[0].get("primary_contact_url")):
+    profile_contact_label = str(df_profile.iloc[0].get("primary_contact_label") or "").strip().lower()
+    if profile_contact_label == "whatsapp":
+        whatsapp_url = str(df_profile.iloc[0]["primary_contact_url"]).strip()
+
+render_author_spotlight(
+    eyebrow="Autor",
+    name=AUTHOR_NAME,
+    role=AUTHOR_ROLE,
+    image_url=AUTHOR_IMAGE_URL,
+    links=[
+        ("E-mail", AUTHOR_EMAIL),
+        ("WhatsApp", whatsapp_url),
+        ("Portfólio", AUTHOR_PORTFOLIO),
+        ("GitHub", AUTHOR_GITHUB),
+        ("LinkedIn", AUTHOR_LINKEDIN),
+    ],
 )
 
 if not df_home.empty:

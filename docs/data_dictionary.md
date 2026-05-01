@@ -130,6 +130,12 @@ Modelos finais consumidos pelo app Streamlit.
 - Papel: registrar cobertura, volume e status de leitura dos arquivos
 - Uso final: página `Health` e monitoramento operacional
 
+### `bronze.ingestion_audit`
+
+- Origem: auditoria gerada automaticamente a cada `load_table`
+- Papel: registrar arquivo de origem, tabela bronze, volume carregado e contrato aplicado
+- Uso final: governança operacional, troubleshooting e rastreabilidade de ingestão
+
 ## Marts principais
 
 ### `main.mart_pipeline_health_summary`

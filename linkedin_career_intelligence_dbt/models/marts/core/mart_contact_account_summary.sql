@@ -6,8 +6,7 @@ with emails as (
     from {{ ref('stg_email_addresses') }}
 ),
 phones as (
-    select
-        count(*) as total_phone_numbers
+    select count(*) as total_phone_numbers
     from {{ ref('stg_phone_numbers') }}
 ),
 registration as (
@@ -26,7 +25,11 @@ select
     registration.first_registered_at,
     registration.latest_registered_at,
     registration.subscription_types,
-    date_diff('year', cast(registration.first_registered_at as date), current_date) as account_age_years
+    date_diff(
+        'year',
+        cast(registration.first_registered_at as date),
+        current_date
+    ) as account_age_years
 from emails
 cross join phones
 cross join registration
