@@ -27,6 +27,9 @@ data/bronze/
 data/silver/
 data/gold/
 data/exports/
+powerbi/exports/*.csv
+powerbi/exports/*.parquet
+powerbi/exports/*.json
 
 # DuckDB temporários
 *.wal
