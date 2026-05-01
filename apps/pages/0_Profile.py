@@ -14,6 +14,13 @@ from linkedin_career_intelligence.streamlit_utils import (
 st.set_page_config(page_title="Profile", layout="wide")
 apply_app_theme()
 
+LOCAL_DISPLAY_LOCATION = "RN"
+DEMO_DISPLAY_LOCATION = "Brasil"
+PUBLIC_PORTFOLIO_URL = "https://diego-pablo.vercel.app/"
+PUBLIC_GITHUB_URL = "https://github.com/DiegoPablo2021/"
+PUBLIC_LINKEDIN_URL = "https://www.linkedin.com/in/diego-pablo/"
+PUBLIC_EMAIL = "diegopmenezes@hotmail.com"
+
 
 @st.cache_data
 def load_profile_summary() -> pd.DataFrame:
@@ -137,6 +144,14 @@ else:
     primary_contact_label = "Contato"
     portfolio_website = ""
 
+display_location = DEMO_DISPLAY_LOCATION if is_demo_mode() else LOCAL_DISPLAY_LOCATION
+display_website = portfolio_website if portfolio_website else PUBLIC_PORTFOLIO_URL
+show_primary_contact = bool(
+    not is_demo_mode()
+    and primary_contact_url
+    and primary_contact_label.strip().lower() not in {"website"}
+)
+
 hero_name = full_name if full_name else "Perfil principal"
 st.markdown(
     f"""
@@ -175,12 +190,12 @@ with q2:
     render_question(
         ui_text("Qual contexto de mercado aparece no perfil?", "What market context appears in the profile?"),
         industry if industry else "Indústria não informada.",
-        ui_text(f"Localização principal: {geo_location if geo_location else '-'}", f"Main location: {geo_location if geo_location else '-'}"),
+        ui_text(f"Localização principal: {display_location}", f"Main location: {display_location}"),
     )
     render_question(
         ui_text("Existe ativo externo para aprofundar a marca pessoal?", "Is there any external asset that extends the personal brand?"),
-        ui_text("Sim, há presença de canal externo registrado.", "Yes, there is an external channel registered.") if portfolio_website or primary_contact_url else ui_text("Não há link externo destacado.", "There is no highlighted external link."),
-        portfolio_website if portfolio_website else primary_contact_url,
+        ui_text("Sim, há presença de canal externo registrado.", "Yes, there is an external channel registered.") if display_website or show_primary_contact else ui_text("Não há link externo destacado.", "There is no highlighted external link."),
+        display_website if display_website else primary_contact_url,
     )
 
 st.divider()
@@ -200,18 +215,18 @@ with left:
 with right:
     st.markdown(f"### {ui_text('Contexto do perfil', 'Profile context')}")
     st.write(f"**Industry:** {industry if industry else '-'}")
-    st.write(f"**{ui_text('Localização', 'Location')}:** {geo_location if geo_location else '-'}")
-    if primary_contact_url:
+    st.write(f"**{ui_text('Localização', 'Location')}:** {display_location}")
+    if show_primary_contact:
         st.markdown(f"**{primary_contact_label}:** [{primary_contact_url}]({primary_contact_url})")
-    if portfolio_website:
-        st.markdown(f"**Website:** [{portfolio_website}]({portfolio_website})")
+    if display_website:
+        st.markdown(f"**Website:** [{display_website}]({display_website})")
     if is_demo_mode():
-        st.markdown("**GitHub:** [github.com/DiegoPablo2021](https://github.com/DiegoPablo2021/)")
+        st.markdown(f"**GitHub:** [github.com/DiegoPablo2021]({PUBLIC_GITHUB_URL})")
         st.caption(ui_text("Contatos diretos ficam ocultos na demo pública.", "Direct contact details stay hidden in the public demo."))
     else:
-        st.markdown("**GitHub:** [github.com/DiegoPablo2021](https://github.com/DiegoPablo2021/)")
-        st.markdown("**LinkedIn:** [linkedin.com/in/diego-pablo](https://www.linkedin.com/in/diego-pablo/)")
-        st.markdown("**E-mail:** [diegopmenezes@hotmail.com](mailto:diegopmenezes@hotmail.com)")
+        st.markdown(f"**GitHub:** [github.com/DiegoPablo2021]({PUBLIC_GITHUB_URL})")
+        st.markdown(f"**LinkedIn:** [linkedin.com/in/diego-pablo]({PUBLIC_LINKEDIN_URL})")
+        st.markdown(f"**E-mail:** [{PUBLIC_EMAIL}](mailto:{PUBLIC_EMAIL})")
 
 st.divider()
 st.markdown(f"## {ui_text('Sinais centrais do perfil', 'Core profile signals')}")
