@@ -279,6 +279,7 @@ Próximos passos naturais para entrega pública:
 - [Portfolio Case](docs/portfolio_case.md)
 - [Data Dictionary](docs/data_dictionary.md)
 - [Runbook](docs/runbook.md)
+- [Guia Rápido e Documentação](docs/guia_rapido_e_documentacao.md)
 - [Explicação do Projeto](docs/project_overview_explanation.md)
 - [Explicação Técnica](docs/technical_explanation.md)
 

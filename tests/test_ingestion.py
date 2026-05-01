@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 import pytest
@@ -87,7 +88,8 @@ def test_transform_connections_handles_skiprow_output_shape() -> None:
         "position",
         "connected_on",
     ]
-    assert str(result.loc[0, "connected_on"].date()) == "2026-04-01"
+    connected_on = cast(pd.Timestamp, result.loc[0, "connected_on"])
+    assert connected_on.date().isoformat() == "2026-04-01"
 
 
 def test_transform_skills_removes_duplicate_and_blank_rows() -> None:

@@ -1,0 +1,51 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}"
+  ],
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "python.testing.cwd": "${workspaceFolder}",
+  "sqlfluff.executablePath": "${workspaceFolder}\\.venv\\Scripts\\sqlfluff.exe",
+  "sqlfluff.config": "${workspaceFolder}\\.sqlfluff",
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/dbt_project-latest.json": [
+      "linkedin_career_intelligence_dbt/dbt_project.yml"
+    ],
+    "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/dbt_yml_files-latest.json": [
+      "linkedin_career_intelligence_dbt/models/**/*.yml"
+    ]
+  },
+  "files.exclude": {
+    "**/.pytest_cache": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/*.duckdb": true,
+    "**/*.wal": true,
+    "**/*.tmp": true,
+    "**/target": true,
+    "**/logs": true,
+    "**/dbt_packages": true
+  },
+  "search.exclude": {
+    "**/.venv": true,
+    "**/.pytest_cache": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/*.duckdb": true,
+    "**/target": true,
+    "**/logs": true,
+    "**/dbt_packages": true
+  },
+  "files.watcherExclude": {
+    "**/.venv/**": true,
+    "**/.pytest_cache/**": true,
+    "**/__pycache__/**": true,
+    "**/target/**": true,
+    "**/logs/**": true,
+    "**/warehouse/**": true
+  }
+}

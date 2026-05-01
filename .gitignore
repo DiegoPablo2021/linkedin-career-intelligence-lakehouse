@@ -9,6 +9,10 @@ __pycache__/
 
 # VS Code
 .vscode/
+!.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 
 # dbt target / logs
 target/
