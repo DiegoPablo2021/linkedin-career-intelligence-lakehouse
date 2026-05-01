@@ -25,7 +25,7 @@ def ensure_output_directories(project_root: Path) -> dict[str, Path]:
     }
 
 
-def get_export_sources(project_root: Path) -> list[dict]:
+def get_export_sources() -> list[dict[str, Path | str]]:
     settings = get_settings()
     return [
         {
@@ -61,6 +61,7 @@ def safe_read_csv_metadata(csv_path: Path) -> dict:
     - sucesso ou erro de leitura
     """
     file_name = csv_path.name.lower()
+    last_error = "Unknown CSV read error"
 
     if file_name == "connections.csv":
         attempts = [
@@ -133,12 +134,12 @@ def safe_read_csv_metadata(csv_path: Path) -> dict:
         "row_count": None,
         "column_count": None,
         "column_names": None,
-        "error_message": last_error, # type: ignore
+        "error_message": last_error,
     }
 
 
 def build_inventory(project_root: Path) -> pd.DataFrame:
-    export_sources = get_export_sources(project_root)
+    export_sources = get_export_sources()
     inventory_rows = []
     inventory_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -235,7 +236,7 @@ def save_inventory_files(df_inventory: pd.DataFrame, output_paths: dict[str, Pat
     }
 
 
-def save_inventory_to_duckdb(project_root: Path, df_inventory: pd.DataFrame) -> Path:
+def save_inventory_to_duckdb(df_inventory: pd.DataFrame) -> Path:
     db_path = get_settings().db_path
     write_dataframe_to_bronze(df_inventory, "file_inventory")
     return db_path
@@ -270,7 +271,7 @@ def print_summary(df_inventory: pd.DataFrame, db_path: Path, saved_files: dict[s
     print("=" * 80)
 
 
-def main():
+def main() -> None:
     project_root = get_settings().project_root
     output_paths = ensure_output_directories(project_root)
 
@@ -281,7 +282,7 @@ def main():
         return
 
     saved_files = save_inventory_files(df_inventory, output_paths)
-    db_path = save_inventory_to_duckdb(project_root, df_inventory)
+    db_path = save_inventory_to_duckdb(df_inventory)
     print_summary(df_inventory, db_path, saved_files)
 
 

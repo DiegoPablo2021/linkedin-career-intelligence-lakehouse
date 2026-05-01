@@ -1,0 +1,30 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": [
+    "linkedin_career_intelligence",
+    "scripts",
+    "apps",
+    "tests"
+  ],
+  "exclude": [
+    ".venv",
+    "**/__pycache__",
+    "data",
+    "warehouse",
+    "logs",
+    "notebooks",
+    "linkedin_career_intelligence_dbt/target",
+    "linkedin_career_intelligence_dbt/logs"
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        "."
+      ]
+    }
+  ],
+  "typeCheckingMode": "basic",
+  "reportMissingTypeStubs": "none"
+}
