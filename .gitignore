@@ -45,3 +45,13 @@ Thumbs.db
 
 # App logs locais
 .streamlit-app-*.log
+
+# Power BI local validation artifacts
+*_validation.json
+*_probe.json
+*_diagnostics.json
+*snapshot.json
+datetime_checks.json
+
+# Temporary local PowerShell helpers
+tmp_*.ps1
