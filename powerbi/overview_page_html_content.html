@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview Page Blueprint</title>
+    <style>
+      :root {
+        --bg: #f4f1ea;
+        --panel: #fbfaf7;
+        --panel-strong: #f0ece3;
+        --text: #1e2a2f;
+        --muted: #61717a;
+        --accent: #0b6e4f;
+        --accent-soft: #dceee8;
+        --border: #d9d2c4;
+        --shadow: 0 14px 38px rgba(22, 34, 39, 0.08);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        height: 100vh;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at top left, rgba(11, 110, 79, 0.09), transparent 28%),
+          linear-gradient(180deg, #f7f4ee 0%, var(--bg) 100%);
+        color: var(--text);
+        font-family: "Segoe UI", "Arial Nova", Arial, sans-serif;
+      }
+
+      .page {
+        width: 100%;
+        height: 95vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding: 18px 20px 20px;
+      }
+
+      .header,
+      .kpi-row,
+      .content-row,
+      .footer-row {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .header {
+        margin-bottom: 14px;
+        align-items: stretch;
+        flex: 0 0 auto;
+      }
+
+      .hero {
+        grid-column: span 8;
+        background: linear-gradient(135deg, #17313a 0%, #28505c 100%);
+        color: #f8faf9;
+        border-radius: 24px;
+        padding: 20px 22px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero h1 {
+        margin: 0 0 10px;
+        font-size: 34px;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 720px;
+        font-size: 15px;
+        line-height: 1.55;
+        color: rgba(248, 250, 249, 0.82);
+      }
+
+      .status-card {
+        grid-column: span 4;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .eyebrow {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+      }
+
+      .status-card .value {
+        font-size: 30px;
+        font-weight: 700;
+        margin: 14px 0 8px;
+      }
+
+      .status-card .helper {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+
+      .kpi-row {
+        margin-bottom: 14px;
+        flex: 0 0 auto;
+      }
+
+      .kpi {
+        grid-column: span 2;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        box-shadow: var(--shadow);
+      }
+
+      .kpi.featured {
+        background: linear-gradient(180deg, #fffdfa 0%, var(--panel) 100%);
+        border-color: #c8d7cf;
+      }
+
+      .kpi .label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .kpi .metric {
+        margin-top: 12px;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      .kpi .microcopy {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
+      .content-row {
+        margin-bottom: 14px;
+        flex: 1 1 0;
+        min-height: 0;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 16px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .panel.large {
+        grid-column: span 7;
+      }
+
+      .panel.medium {
+        grid-column: span 5;
+      }
+
+      .panel.half {
+        grid-column: span 6;
+      }
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 12px;
+      }
+
+      .panel-title h2 {
+        margin: 0 0 6px;
+        font-size: 22px;
+        letter-spacing: -0.02em;
+      }
+
+      .panel-title p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
+      .chip {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+      }
+
+      .visual {
+        border: 1px dashed #b8b0a2;
+        border-radius: 16px;
+        background: repeating-linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.9),
+          rgba(255, 255, 255, 0.9) 16px,
+          rgba(235, 231, 223, 0.85) 16px,
+          rgba(235, 231, 223, 0.85) 32px
+        );
+        flex: 1 1 0;
+        min-height: 110px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #6d7a80;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .mini-kpis {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .mini-kpi {
+        background: var(--panel-strong);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .mini-kpi .label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .mini-kpi .value {
+        margin-top: 8px;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .mini-kpi .copy {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
+      .footer-row {
+        margin-top: 0;
+        flex: 0.72 1 0;
+        min-height: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <section class="header">
+        <div class="hero">
+          <div class="eyebrow">Executive Summary</div>
+          <h1>Overview</h1>
+          <p>
+            LinkedIn career intelligence at a glance. This page consolidates growth,
+            application momentum, professional presence and pipeline trust signals
+            into one executive view.
+          </p>
+        </div>
+        <div class="status-card">
+          <div>
+            <div class="eyebrow">Refresh Status</div>
+            <div class="value">{{ Last Refresh Date }}</div>
+          </div>
+          <div class="helper">
+            Last model refresh reference date. Use this signal to validate the
+            freshness of the analytical narrative before reviewing trends.
+          </div>
+        </div>
+      </section>
+
+      <section class="kpi-row">
+        <div class="kpi featured">
+          <div class="label">Total Connections</div>
+          <div class="metric">{{ Total Connections }}</div>
+          <div class="microcopy">Network growth across the selected time window</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Connections MoM %</div>
+          <div class="metric">{{ Connections MoM % }}</div>
+          <div class="microcopy">Month-over-month change in network growth</div>
+        </div>
+        <div class="kpi featured">
+          <div class="label">Total Applications</div>
+          <div class="metric">{{ Total Applications }}</div>
+          <div class="microcopy">Applications submitted in the selected period</div>
+        </div>
+        <div class="kpi featured">
+          <div class="label">Total Recommendations</div>
+          <div class="metric">{{ Total Recommendations }}</div>
+          <div class="microcopy">Recommendations captured in the selected period</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Read Success Rate %</div>
+          <div class="metric">{{ Read Success Rate % }}</div>
+          <div class="microcopy">Operational reliability of the data pipeline</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Inventory Freshness</div>
+          <div class="metric">{{ Inventory Freshness (Days) }}</div>
+          <div class="microcopy">Days since the last recorded inventory update</div>
+        </div>
+      </section>
+
+      <section class="content-row">
+        <div class="panel large">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h2>Networking Growth</h2>
+              <p>How the network evolves over time</p>
+            </div>
+            <div class="chip">Primary trend</div>
+          </div>
+          <div class="visual">Line chart placeholder<br />Total Connections by Month</div>
+          <div class="mini-kpis">
+            <div class="mini-kpi">
+              <div class="label">Connections with Email</div>
+              <div class="value">{{ Connections with Email }}</div>
+              <div class="copy">Contacts with a reachable e-mail attribute in the current filter context</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Email Coverage</div>
+              <div class="value">{{ Connections with Email % }}</div>
+              <div class="copy">Share of the network that carries an e-mail signal</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Connections YTD</div>
+              <div class="value">{{ Connections YTD }}</div>
+              <div class="copy">Accumulated networking volume within the current year</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel medium">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h2>Applications Momentum</h2>
+              <p>Application volume and completeness</p>
+            </div>
+            <div class="chip">Execution</div>
+          </div>
+          <div class="visual">Line chart placeholder<br />Total Applications by Month</div>
+          <div class="mini-kpis">
+            <div class="mini-kpi">
+              <div class="label">Resume Coverage</div>
+              <div class="value">{{ Applications with Resume % }}</div>
+              <div class="copy">Share of applications that included a resume</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Questionnaire Coverage</div>
+              <div class="value">{{ Applications with Questionnaire % }}</div>
+              <div class="copy">Share of applications that required a questionnaire</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Applications YTD</div>
+              <div class="value">{{ Applications YTD }}</div>
+              <div class="copy">Accumulated applications within the current year</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-row">
+        <div class="panel large">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h2>Career and Education Progress</h2>
+              <p>Professional and learning milestones</p>
+            </div>
+            <div class="chip">Milestones</div>
+          </div>
+          <div class="visual">Clustered columns placeholder<br />Positions, Education and Certifications by Month</div>
+          <div class="mini-kpis">
+            <div class="mini-kpi">
+              <div class="label">Avg Position Duration</div>
+              <div class="value">{{ Average Position Duration (Months) }}</div>
+              <div class="copy">Average duration of career experiences in months</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Avg Education Duration</div>
+              <div class="value">{{ Average Education Duration (Months) }}</div>
+              <div class="copy">Average duration of education journeys in months</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Total Certifications</div>
+              <div class="value">{{ Total Certifications }}</div>
+              <div class="copy">Credential activity captured over the selected period</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel medium">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h2>Professional Presence</h2>
+              <p>Signals of engagement and credibility</p>
+            </div>
+            <div class="chip">Reputation</div>
+          </div>
+          <div class="visual">Multi-series chart placeholder<br />Recommendations, Events and Invitations by Month</div>
+          <div class="mini-kpis">
+            <div class="mini-kpi">
+              <div class="label">Data Mention Rate</div>
+              <div class="value">{{ Recommendations Mention Data % }}</div>
+              <div class="copy">Recommendations that explicitly mention the data theme</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Events with URL %</div>
+              <div class="value">{{ Events with URL % }}</div>
+              <div class="copy">Events enriched with an accessible link</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Invitations with Message %</div>
+              <div class="value">{{ Invitations with Message % }}</div>
+              <div class="copy">Invitations sent or received with a written message</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer-row">
+        <div class="panel half">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h2>Pipeline Health</h2>
+              <p>Reliability of ingestion and refresh operations</p>
+            </div>
+            <div class="chip">Trust</div>
+          </div>
+          <div class="mini-kpis">
+            <div class="mini-kpi">
+              <div class="label">Successful Reads</div>
+              <div class="value">{{ Successful Reads }}</div>
+              <div class="copy">Read operations completed successfully</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Failed Reads</div>
+              <div class="value">{{ Failed Reads }}</div>
+              <div class="copy">Read operations that failed during ingestion</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Read Success Rate %</div>
+              <div class="value">{{ Read Success Rate % }}</div>
+              <div class="copy">Operational reliability of the ingestion pipeline</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Read Failure Rate %</div>
+              <div class="value">{{ Read Failure Rate % }}</div>
+              <div class="copy">Share of reads that failed within the monitored pipeline</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Data Quality Score %</div>
+              <div class="value">{{ Data Quality Score % }}</div>
+              <div class="copy">Simplified operational quality score derived from read reliability</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel half">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h2>Inventory Footprint</h2>
+              <p>Scale and freshness of the analytical asset base</p>
+            </div>
+            <div class="chip">Coverage</div>
+          </div>
+          <div class="mini-kpis">
+            <div class="mini-kpi">
+              <div class="label">Total Inventory Files</div>
+              <div class="value">{{ Total Inventory Files }}</div>
+              <div class="copy">Files represented in the current inventory footprint</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Total Inventory Rows</div>
+              <div class="value">{{ Total Inventory Rows }}</div>
+              <div class="copy">Rows processed across inventoried assets</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Total Inventory Size (KB)</div>
+              <div class="value">{{ Total Inventory Size (KB) }}</div>
+              <div class="copy">Aggregate storage footprint of the inventoried assets</div>
+            </div>
+            <div class="mini-kpi">
+              <div class="label">Inventory Freshness</div>
+              <div class="value">{{ Inventory Freshness (Days) }}</div>
+              <div class="copy">Days elapsed since the latest inventory reference date</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

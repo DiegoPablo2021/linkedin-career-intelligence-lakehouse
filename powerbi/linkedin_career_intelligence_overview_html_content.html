@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LinkedIn Career Intelligence - Overview</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --panel:#111827;
+    --panel-2:#1e293b;
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --border:rgba(148,163,184,.20);
+    --blue:#3b82f6;
+    --green:#10b981;
+    --orange:#f59e0b;
+    --purple:#8b5cf6;
+    --red:#ef4444;
+    --cyan:#06b6d4;
+    --gray:#64748b;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Segoe UI, Inter, Arial, sans-serif;
+  }
+
+  .page{
+    width:100%;
+    min-height:100vh;
+    padding:28px;
+    background:
+      radial-gradient(circle at top left, rgba(59,130,246,.18), transparent 28%),
+      radial-gradient(circle at top right, rgba(139,92,246,.14), transparent 24%),
+      var(--bg);
+  }
+
+  .header{
+    display:grid;
+    grid-template-columns:1fr 260px;
+    gap:20px;
+    align-items:stretch;
+    margin-bottom:20px;
+  }
+
+  .title-block{
+    padding:22px 24px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    background:linear-gradient(135deg, rgba(17,24,39,.92), rgba(30,41,59,.86));
+    box-shadow:0 18px 40px rgba(0,0,0,.22);
+  }
+
+  .eyebrow{
+    color:var(--blue);
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+
+  h1{
+    margin:0;
+    font-size:34px;
+    line-height:1.05;
+    letter-spacing:-.04em;
+  }
+
+  .subtitle{
+    margin-top:8px;
+    color:var(--muted);
+    font-size:14px;
+  }
+
+  .refresh{
+    padding:18px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    background:rgba(17,24,39,.86);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:8px;
+  }
+
+  .label{
+    color:var(--muted);
+    font-size:12px;
+    font-weight:600;
+  }
+
+  .value{
+    font-size:26px;
+    font-weight:800;
+    letter-spacing:-.03em;
+  }
+
+  .note{
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:14px;
+    margin-bottom:20px;
+  }
+
+  .card{
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:16px;
+    background:rgba(17,24,39,.88);
+    box-shadow:0 14px 30px rgba(0,0,0,.18);
+    min-height:112px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .card::after{
+    content:"";
+    position:absolute;
+    right:-30px;
+    top:-40px;
+    width:96px;
+    height:96px;
+    border-radius:50%;
+    background:var(--accent, var(--blue));
+    opacity:.12;
+  }
+
+  .card-title{
+    color:var(--muted);
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+
+  .card-value{
+    font-size:28px;
+    font-weight:850;
+    letter-spacing:-.04em;
+  }
+
+  .trend{
+    margin-top:8px;
+    font-size:12px;
+    color:#86efac;
+    font-weight:700;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:7fr 5fr;
+    gap:20px;
+    margin-bottom:20px;
+  }
+
+  .section{
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:20px;
+    background:rgba(17,24,39,.86);
+    box-shadow:0 14px 34px rgba(0,0,0,.18);
+    min-height:310px;
+  }
+
+  .section-head{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    align-items:flex-start;
+    margin-bottom:16px;
+  }
+
+  .section-title{
+    font-size:17px;
+    font-weight:800;
+    letter-spacing:-.02em;
+  }
+
+  .section-subtitle{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:4px;
+  }
+
+  .tag{
+    font-size:11px;
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:5px 9px;
+    background:rgba(255,255,255,.04);
+  }
+
+  .chart{
+    height:170px;
+    border-radius:16px;
+    border:1px solid rgba(148,163,184,.14);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)),
+      repeating-linear-gradient(to top, transparent 0 39px, rgba(148,163,184,.08) 40px),
+      repeating-linear-gradient(to right, transparent 0 69px, rgba(148,163,184,.06) 70px);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .sparkline{
+    position:absolute;
+    left:22px;
+    right:22px;
+    bottom:28px;
+    height:90px;
+  }
+
+  svg{width:100%;height:100%;overflow:visible}
+
+  .mini-kpis{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+  }
+
+  .mini{
+    border-radius:14px;
+    background:rgba(30,41,59,.70);
+    border:1px solid rgba(148,163,184,.14);
+    padding:12px;
+  }
+
+  .mini strong{
+    display:block;
+    font-size:18px;
+    margin-top:6px;
+  }
+
+  .barset{
+    display:flex;
+    height:170px;
+    align-items:end;
+    gap:14px;
+    padding:18px 18px 10px;
+  }
+
+  .bar{
+    flex:1;
+    border-radius:10px 10px 4px 4px;
+    background:linear-gradient(180deg, var(--accent), rgba(255,255,255,.12));
+    min-height:36px;
+  }
+
+  .presence{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+
+  .metric-row{
+    display:grid;
+    grid-template-columns:1fr 62px;
+    gap:12px;
+    align-items:center;
+  }
+
+  .meter{
+    height:10px;
+    border-radius:999px;
+    background:rgba(148,163,184,.20);
+    overflow:hidden;
+  }
+
+  .meter span{
+    display:block;
+    height:100%;
+    width:var(--w);
+    border-radius:999px;
+    background:var(--accent);
+  }
+
+  .footer-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+  }
+
+  .trust{
+    display:grid;
+    grid-template-columns:1.2fr 1fr;
+    gap:16px;
+    align-items:center;
+  }
+
+  .score{
+    width:148px;
+    height:148px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    margin:auto;
+    background:
+      radial-gradient(circle at center, var(--panel) 58%, transparent 60%),
+      conic-gradient(var(--green) 0 94%, rgba(148,163,184,.18) 94% 100%);
+  }
+
+  .score strong{
+    font-size:30px;
+  }
+
+  .inventory-list{
+    display:grid;
+    gap:10px;
+  }
+
+  .inv-item{
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid rgba(148,163,184,.12);
+    padding-bottom:9px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .inv-item strong{
+    color:var(--text);
+  }
+
+  @media(max-width:1100px){
+    .kpis{grid-template-columns:repeat(3,1fr)}
+    .grid,.footer-grid,.header{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+  <main class="page">
+
+    <section class="header">
+      <div class="title-block">
+        <div class="eyebrow">LinkedIn Career Intelligence</div>
+        <h1>Overview</h1>
+        <div class="subtitle">Executive view of growth, activity and pipeline health</div>
+      </div>
+      <div class="refresh">
+        <div class="label">Last Refresh Date</div>
+        <div class="value">--/--/----</div>
+        <div class="note">Use a medida [Last Refresh Date]</div>
+      </div>
+    </section>
+
+    <section class="kpis">
+      <div class="card" style="--accent:var(--blue)">
+        <div class="card-title">Total Connections</div>
+        <div class="card-value">[Total Connections]</div>
+        <div class="trend">Networking growth</div>
+      </div>
+      <div class="card" style="--accent:var(--cyan)">
+        <div class="card-title">Connections MoM %</div>
+        <div class="card-value">[Connections MoM %]</div>
+        <div class="trend">vs previous month</div>
+      </div>
+      <div class="card" style="--accent:var(--orange)">
+        <div class="card-title">Total Applications</div>
+        <div class="card-value">[Total Applications]</div>
+        <div class="trend">Career momentum</div>
+      </div>
+      <div class="card" style="--accent:var(--purple)">
+        <div class="card-title">Total Recommendations</div>
+        <div class="card-value">[Total Recommendations]</div>
+        <div class="trend">Reputation signal</div>
+      </div>
+      <div class="card" style="--accent:var(--green)">
+        <div class="card-title">Read Success Rate %</div>
+        <div class="card-value">[Read Success Rate %]</div>
+        <div class="trend">Pipeline health</div>
+      </div>
+      <div class="card" style="--accent:var(--gray)">
+        <div class="card-title">Inventory Freshness</div>
+        <div class="card-value">[Inventory Freshness]</div>
+        <div class="trend">days since refresh</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Networking Growth</div>
+            <div class="section-subtitle">Evolution of connections and contact coverage over time</div>
+          </div>
+          <span class="tag">Networking</span>
+        </div>
+        <div class="chart">
+          <div class="sparkline">
+            <svg viewBox="0 0 520 120" preserveAspectRatio="none">
+              <path d="M0,95 C50,88 75,70 120,76 C170,84 190,50 240,55 C285,60 310,35 355,38 C410,42 445,18 520,24" fill="none" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+              <path d="M0,110 C60,100 92,92 135,88 C210,82 235,70 292,65 C365,57 425,40 520,35" fill="none" stroke="#06b6d4" stroke-width="3" opacity=".65" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mini-kpis">
+          <div class="mini"><span class="label">Email Coverage</span><strong>[Connections with Email %]</strong></div>
+          <div class="mini"><span class="label">YTD Growth</span><strong>[Connections YTD]</strong></div>
+          <div class="mini"><span class="label">Contacts w/ Email</span><strong>[Connections with Email]</strong></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Applications Momentum</div>
+            <div class="section-subtitle">Job application volume and completion signals</div>
+          </div>
+          <span class="tag">Applications</span>
+        </div>
+        <div class="chart">
+          <div class="sparkline">
+            <svg viewBox="0 0 420 120" preserveAspectRatio="none">
+              <path d="M0,92 C42,92 55,60 94,66 C140,74 160,35 210,44 C250,52 280,72 318,56 C360,39 382,48 420,30" fill="none" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mini-kpis">
+          <div class="mini"><span class="label">Resume %</span><strong>[Applications with Resume %]</strong></div>
+          <div class="mini"><span class="label">Questionnaire %</span><strong>[Applications with Questionnaire %]</strong></div>
+          <div class="mini"><span class="label">Applications YTD</span><strong>[Applications YTD]</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Career and Education Progress</div>
+            <div class="section-subtitle">Professional progression, education milestones and certifications</div>
+          </div>
+          <span class="tag">Career</span>
+        </div>
+        <div class="chart">
+          <div class="barset">
+            <div class="bar" style="height:45%;--accent:var(--green)"></div>
+            <div class="bar" style="height:65%;--accent:var(--blue)"></div>
+            <div class="bar" style="height:40%;--accent:var(--purple)"></div>
+            <div class="bar" style="height:78%;--accent:var(--green)"></div>
+            <div class="bar" style="height:56%;--accent:var(--blue)"></div>
+            <div class="bar" style="height:88%;--accent:var(--purple)"></div>
+            <div class="bar" style="height:68%;--accent:var(--green)"></div>
+            <div class="bar" style="height:58%;--accent:var(--blue)"></div>
+          </div>
+        </div>
+        <div class="mini-kpis">
+          <div class="mini"><span class="label">Positions</span><strong>[Total Positions Started]</strong></div>
+          <div class="mini"><span class="label">Education</span><strong>[Total Education Started]</strong></div>
+          <div class="mini"><span class="label">Certifications</span><strong>[Total Certifications]</strong></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Professional Presence</div>
+            <div class="section-subtitle">Reputation, events and invitation quality</div>
+          </div>
+          <span class="tag">Presence</span>
+        </div>
+        <div class="presence">
+          <div class="metric-row">
+            <div>
+              <div class="label">Recommendations</div>
+              <div class="meter" style="--accent:var(--purple)"><span style="--w:78%"></span></div>
+            </div>
+            <strong>[Total Recommendations]</strong>
+          </div>
+          <div class="metric-row">
+            <div>
+              <div class="label">Events</div>
+              <div class="meter" style="--accent:var(--blue)"><span style="--w:58%"></span></div>
+            </div>
+            <strong>[Total Events]</strong>
+          </div>
+          <div class="metric-row">
+            <div>
+              <div class="label">Invitations</div>
+              <div class="meter" style="--accent:var(--orange)"><span style="--w:66%"></span></div>
+            </div>
+            <strong>[Total Invitations]</strong>
+          </div>
+        </div>
+        <div class="mini-kpis">
+          <div class="mini"><span class="label">Data Mention</span><strong>[Recommendations Mention Data %]</strong></div>
+          <div class="mini"><span class="label">Events URL</span><strong>[Events with URL %]</strong></div>
+          <div class="mini"><span class="label">Message %</span><strong>[Invitations with Message %]</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer-grid">
+      <div class="section" style="min-height:220px">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Pipeline Health</div>
+            <div class="section-subtitle">Operational confidence and reading quality</div>
+          </div>
+          <span class="tag">Trust</span>
+        </div>
+        <div class="trust">
+          <div class="score"><strong>[Data Quality Score %]</strong></div>
+          <div class="inventory-list">
+            <div class="inv-item"><span>Successful Reads</span><strong>[Successful Reads]</strong></div>
+            <div class="inv-item"><span>Failed Reads</span><strong>[Failed Reads]</strong></div>
+            <div class="inv-item"><span>Failure Rate</span><strong>[Read Failure Rate %]</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="min-height:220px">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Inventory Footprint</div>
+            <div class="section-subtitle">Data volume, size and freshness indicators</div>
+          </div>
+          <span class="tag">Inventory</span>
+        </div>
+        <div class="inventory-list">
+          <div class="inv-item"><span>Total Inventory Files</span><strong>[Total Inventory Files]</strong></div>
+          <div class="inv-item"><span>Total Inventory Rows</span><strong>[Total Inventory Rows]</strong></div>
+          <div class="inv-item"><span>Total Inventory Size (KB)</span><strong>[Total Inventory Size (KB)]</strong></div>
+          <div class="inv-item"><span>Inventory Freshness (Days)</span><strong>[Inventory Freshness (Days)]</strong></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>
