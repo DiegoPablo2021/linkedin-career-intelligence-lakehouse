@@ -55,3 +55,5 @@ datetime_checks.json
 
 # Temporary local PowerShell helpers
 tmp_*.ps1
+powerbi_cleanup_validation2.json
+powerbi_column_inventory.json
