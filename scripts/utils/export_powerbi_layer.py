@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 import json
 from dataclasses import dataclass
 from pathlib import Path
 import sys
 
+import duckdb
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -396,7 +398,7 @@ def ensure_output_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
 
-def table_exists(conn: object, qualified_name: str) -> bool:
+def table_exists(conn: duckdb.DuckDBPyConnection, qualified_name: str) -> bool:
     schema_name, table_name = qualified_name.split(".", 1)
     result = conn.execute(
         """
@@ -409,7 +411,7 @@ def table_exists(conn: object, qualified_name: str) -> bool:
     return bool(result and result[0])
 
 
-def validate_sources(conn: object) -> None:
+def validate_sources(conn: duckdb.DuckDBPyConnection) -> None:
     missing = sorted(
         spec.source_table for spec in EXPORT_SPECS if not table_exists(conn, spec.source_table)
     )
@@ -422,7 +424,7 @@ def validate_sources(conn: object) -> None:
         )
 
 
-def build_dim_date(conn: object) -> pd.DataFrame:
+def build_dim_date(conn: duckdb.DuckDBPyConnection) -> pd.DataFrame:
     dates: list[pd.Timestamp] = []
 
     for table_name, column_name, column_kind in TEMPORAL_SPECS:
@@ -444,7 +446,10 @@ def build_dim_date(conn: object) -> pd.DataFrame:
 
         parsed = parsed.dropna()
         if not parsed.empty:
-            dates.extend(parsed.tolist())
+            parsed_values: Sequence[object] = parsed.tolist()
+            dates.extend(
+                value for value in parsed_values if isinstance(value, pd.Timestamp)
+            )
 
     if not dates:
         today = pd.Timestamp.today().normalize()

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 import pandas as pd
 
@@ -13,6 +13,7 @@ from linkedin_career_intelligence.duckdb_utils import write_dataframe_to_bronze
 
 
 TransformFn = Callable[[pd.DataFrame], pd.DataFrame]
+ReadKwargs = dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -23,16 +24,16 @@ class TableConfig:
     export_type: str
     transform: TransformFn
     contract: TableContract
-    read_kwargs: dict = field(default_factory=dict)
+    read_kwargs: ReadKwargs = field(default_factory=dict)
 
 
-def read_csv_safe(csv_path, **read_kwargs) -> pd.DataFrame:
-    options = {
+def read_csv_safe(csv_path: str | Path, **read_kwargs: Any) -> pd.DataFrame:
+    options: ReadKwargs = {
         "encoding": "utf-8-sig",
         "engine": "python",
     }
     options.update(read_kwargs)
-    return pd.read_csv(csv_path, **options)
+    return pd.read_csv(str(csv_path), **options)
 
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:

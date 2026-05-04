@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Iterable
 from pathlib import Path
+from typing import Iterable
 
+import duckdb
 import pandas as pd
 
 from linkedin_career_intelligence.config import ProjectSettings, get_settings
@@ -15,15 +16,15 @@ def ensure_parent_dir(path: Path) -> None:
 def connect_duckdb(
     read_only: bool = False,
     settings: ProjectSettings | None = None,
-) -> Any:
-    import duckdb
-
+) -> duckdb.DuckDBPyConnection:
     settings = settings or get_settings()
     ensure_parent_dir(settings.db_path)
     return duckdb.connect(str(settings.db_path), read_only=read_only)
 
 
-def ensure_core_schemas(conn: Any, extra_schemas: Iterable[str] | None = None) -> None:
+def ensure_core_schemas(
+    conn: duckdb.DuckDBPyConnection, extra_schemas: Iterable[str] | None = None
+) -> None:
     schemas = ["raw", "bronze", "silver", "gold"]
     if extra_schemas:
         schemas.extend(extra_schemas)
