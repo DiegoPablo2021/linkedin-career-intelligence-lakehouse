@@ -55,8 +55,8 @@ def ensure_columns(df: pd.DataFrame, required_columns: list[str]) -> pd.DataFram
 def clean_text_columns(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     cleaned = df.copy()
     for col in columns:
-        cleaned[col] = cleaned[col].astype("string").str.strip()
-        cleaned[col] = cleaned[col].replace({"": pd.NA, "nan": pd.NA, "None": pd.NA})
+        normalized = cleaned[col].astype("string").str.strip()
+        cleaned[col] = normalized.mask(normalized.isin(["", "nan", "None"]), pd.NA)
     return cleaned
 
 
