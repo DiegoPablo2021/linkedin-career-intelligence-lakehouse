@@ -33,6 +33,39 @@ def ensure_core_schemas(
         conn.execute(f"CREATE SCHEMA IF NOT EXISTS {schema}")
 
 
+def _quote_identifier(identifier: str) -> str:
+    escaped = identifier.replace('"', '""')
+    return f'"{escaped}"'
+
+
+def _evolve_table_schema_for_append(
+    conn: duckdb.DuckDBPyConnection,
+    schema_name: str,
+    table_name: str,
+) -> None:
+    existing_columns = {
+        row[0].lower()
+        for row in conn.execute(
+            """
+            select column_name
+            from information_schema.columns
+            where table_schema = ? and table_name = ?
+            """,
+            [schema_name, table_name],
+        ).fetchall()
+    }
+    df_columns = conn.execute("describe select * from df_temp").fetchall()
+    for column_name, column_type, *_ in df_columns:
+        if column_name.lower() in existing_columns:
+            continue
+        conn.execute(
+            f"""
+            alter table {_quote_identifier(schema_name)}.{_quote_identifier(table_name)}
+            add column {_quote_identifier(column_name)} {column_type}
+            """
+        )
+
+
 def write_dataframe(
     df: pd.DataFrame,
     schema_name: str,
@@ -40,42 +73,45 @@ def write_dataframe(
     *,
     mode: str = "replace",
     settings: ProjectSettings | None = None,
+    conn: duckdb.DuckDBPyConnection | None = None,
 ) -> None:
-    conn = connect_duckdb(settings=settings)
-    ensure_core_schemas(conn, extra_schemas=[schema_name])
-    conn.register("df_temp", df)
+    active_conn = conn or connect_duckdb(settings=settings)
+    should_close_conn = conn is None
+    ensure_core_schemas(active_conn, extra_schemas=[schema_name])
+    active_conn.register("df_temp", df)
 
-    if mode == "replace":
-        conn.execute(
-            f"""
-            CREATE OR REPLACE TABLE {schema_name}.{table_name} AS
-            SELECT *
-            FROM df_temp
-            """
-        )
-    elif mode == "append":
-        conn.execute(
-            f"""
-            CREATE TABLE IF NOT EXISTS {schema_name}.{table_name} AS
-            SELECT *
-            FROM df_temp
-            LIMIT 0
-            """
-        )
-        conn.execute(
-            f"""
-            INSERT INTO {schema_name}.{table_name}
-            SELECT *
-            FROM df_temp
-            """
-        )
-    else:
-        conn.unregister("df_temp")
-        conn.close()
-        raise ValueError(f"Unsupported write mode: {mode}")
-
-    conn.unregister("df_temp")
-    conn.close()
+    try:
+        if mode == "replace":
+            active_conn.execute(
+                f"""
+                CREATE OR REPLACE TABLE {schema_name}.{table_name} AS
+                SELECT *
+                FROM df_temp
+                """
+            )
+        elif mode == "append":
+            active_conn.execute(
+                f"""
+                CREATE TABLE IF NOT EXISTS {schema_name}.{table_name} AS
+                SELECT *
+                FROM df_temp
+                LIMIT 0
+                """
+            )
+            _evolve_table_schema_for_append(active_conn, schema_name, table_name)
+            active_conn.execute(
+                f"""
+                INSERT INTO {schema_name}.{table_name} BY NAME
+                SELECT *
+                FROM df_temp
+                """
+            )
+        else:
+            raise ValueError(f"Unsupported write mode: {mode}")
+    finally:
+        active_conn.unregister("df_temp")
+        if should_close_conn:
+            active_conn.close()
 
 
 def write_dataframe_to_bronze(
@@ -84,6 +120,7 @@ def write_dataframe_to_bronze(
     *,
     mode: str = "replace",
     settings: ProjectSettings | None = None,
+    conn: duckdb.DuckDBPyConnection | None = None,
 ) -> None:
     write_dataframe(
         df,
@@ -91,4 +128,5 @@ def write_dataframe_to_bronze(
         table_name,
         mode=mode,
         settings=settings,
+        conn=conn,
     )

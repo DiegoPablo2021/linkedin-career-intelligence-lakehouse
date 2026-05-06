@@ -2,20 +2,24 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import cast
+import json
 
 import pandas as pd
 import pytest
 
 from linkedin_career_intelligence.config import ProjectSettings, get_settings
+from linkedin_career_intelligence.contracts import TableContract, assert_contract, validate_contract
 from linkedin_career_intelligence.duckdb_utils import connect_duckdb, write_dataframe
 from linkedin_career_intelligence.ingestion import (
     TABLES,
+    load_all_tables,
     load_table,
     transform_connections,
     transform_education,
     transform_recommendations_received,
     transform_skills,
 )
+from scripts.run_pipeline import pipeline_database_guard
 
 
 def test_transform_education_normalizes_columns_and_flags_current() -> None:
@@ -139,6 +143,69 @@ def test_write_dataframe_supports_append_mode(tmp_path: Path) -> None:
     assert rows == [(1, "alpha"), (2, "beta")]
 
 
+def test_write_dataframe_append_evolves_schema_by_name(tmp_path: Path) -> None:
+    pytest.importorskip("duckdb")
+    settings = build_temp_settings(tmp_path)
+
+    write_dataframe(
+        pd.DataFrame([{"id": 1, "name": "alpha"}]),
+        "bronze",
+        "append_schema_test",
+        mode="append",
+        settings=settings,
+    )
+    write_dataframe(
+        pd.DataFrame([{"id": 2, "name": "beta", "status": "ok"}]),
+        "bronze",
+        "append_schema_test",
+        mode="append",
+        settings=settings,
+    )
+
+    conn = connect_duckdb(settings=settings, read_only=True)
+    rows = conn.execute(
+        "select id, name, status from bronze.append_schema_test order by id"
+    ).fetchall()
+    conn.close()
+
+    assert rows == [(1, "alpha", None), (2, "beta", "ok")]
+
+
+def test_assert_contract_rejects_duplicate_unique_columns() -> None:
+    df = pd.DataFrame({"skill_name": ["Python", "Python"]})
+    contract = TableContract(
+        required_columns=("skill_name",),
+        unique_columns=("skill_name",),
+    )
+
+    with pytest.raises(ValueError, match="Duplicate rows found after transformation"):
+        assert_contract(df, contract)
+
+
+def test_assert_contract_rejects_blank_non_empty_columns() -> None:
+    df = pd.DataFrame({"skill_name": ["Python", "", None]})
+    contract = TableContract(
+        required_columns=("skill_name",),
+        non_empty_columns=("skill_name",),
+    )
+
+    with pytest.raises(ValueError, match="Null/blank rate above allowed threshold"):
+        assert_contract(df, contract)
+
+
+def test_validate_contract_reports_null_rates_per_column() -> None:
+    df = pd.DataFrame({"email_address": ["ana@example.com", None, ""]})
+    contract = TableContract(
+        required_columns=("email_address",),
+        max_null_rate_by_column={"email_address": 0.20},
+    )
+
+    validation = validate_contract(df, contract)
+
+    assert validation.null_rates["email_address"] == pytest.approx(2 / 3)
+    assert validation.null_rate_violations["email_address"] == pytest.approx(2 / 3)
+
+
 def test_load_table_persists_bronze_and_ingestion_audit(tmp_path: Path) -> None:
     pytest.importorskip("duckdb")
     settings = build_temp_settings(tmp_path)
@@ -167,8 +234,11 @@ def test_load_table_persists_bronze_and_ingestion_audit(tmp_path: Path) -> None:
             table_key,
             bronze_table,
             source_file,
-            row_count,
+            source_row_count,
+            row_count_after_transform,
+            rows_removed_during_transform,
             duplicate_rows_after_transform,
+            null_rate_by_column,
             contract_owner
         from bronze.ingestion_audit
         """
@@ -177,8 +247,73 @@ def test_load_table_persists_bronze_and_ingestion_audit(tmp_path: Path) -> None:
 
     assert bronze_rows == [("Python",), ("SQL",)]
     assert audit_rows == [
-        ("skills", "skills", "Skills.csv", 2, 0, "LinkedIn member"),
+        (
+            "skills",
+            "skills",
+            "Skills.csv",
+            3,
+            2,
+            1,
+            0,
+            json.dumps({"skill_name": 0.0}),
+            "LinkedIn member",
+        ),
     ]
+
+
+def test_load_all_tables_rolls_back_on_failure(tmp_path: Path) -> None:
+    pytest.importorskip("duckdb")
+    settings = build_temp_settings(tmp_path)
+    export_dir = settings.export_dir("complete")
+    export_dir.mkdir(parents=True, exist_ok=True)
+    (export_dir / TABLES["connections"].csv_name).write_text(
+        "\n".join(
+            [
+                "metadata line 1",
+                "metadata line 2",
+                "metadata line 3",
+                "First Name,Last Name,URL,Email Address,Company,Position,Connected On",
+                "Diego,Silva,https://linkedin.com/in/teste,diego@email.com,Open Data,Engineer,2026-04-01",
+            ]
+        ),
+        encoding="utf-8-sig",
+    )
+
+    with pytest.raises(FileNotFoundError):
+        load_all_tables(settings=settings)
+
+    conn = connect_duckdb(settings=settings, read_only=True)
+    connections_exists = conn.execute(
+        """
+        select count(*)
+        from information_schema.tables
+        where table_schema = 'bronze' and table_name = 'connections'
+        """
+    ).fetchone()
+    audit_exists = conn.execute(
+        """
+        select count(*)
+        from information_schema.tables
+        where table_schema = 'bronze' and table_name = 'ingestion_audit'
+        """
+    ).fetchone()
+    conn.close()
+
+    assert connections_exists == (0,)
+    assert audit_exists == (0,)
+
+
+def test_pipeline_database_guard_restores_database_after_failure(tmp_path: Path) -> None:
+    db_path = tmp_path / "warehouse" / "test.duckdb"
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    db_path.write_text("estado-original", encoding="utf-8")
+
+    with pytest.raises(RuntimeError):
+        with pipeline_database_guard(db_path):
+            db_path.write_text("estado-corrompido", encoding="utf-8")
+            raise RuntimeError("falha forçada")
+
+    assert db_path.read_text(encoding="utf-8") == "estado-original"
 
 
 def build_temp_settings(tmp_path: Path) -> ProjectSettings:

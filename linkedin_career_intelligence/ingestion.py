@@ -1,15 +1,21 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+import duckdb
 import pandas as pd
 
 from linkedin_career_intelligence.config import ProjectSettings, get_settings
-from linkedin_career_intelligence.contracts import TableContract, assert_contract
-from linkedin_career_intelligence.duckdb_utils import write_dataframe_to_bronze
+from linkedin_career_intelligence.contracts import (
+    ContractValidationResult,
+    TableContract,
+    assert_contract,
+)
+from linkedin_career_intelligence.duckdb_utils import connect_duckdb, write_dataframe_to_bronze
 
 
 TransformFn = Callable[[pd.DataFrame], pd.DataFrame]
@@ -101,12 +107,31 @@ def deduplicate_rows(df: pd.DataFrame, subset: list[str] | None = None) -> pd.Da
     return df.drop_duplicates(subset=subset).reset_index(drop=True)
 
 
+def summarize_null_rates(df: pd.DataFrame) -> dict[str, float]:
+    if df.empty:
+        return {column: 0.0 for column in df.columns}
+
+    summary: dict[str, float] = {}
+    for column in df.columns:
+        series = df[column]
+        if pd.api.types.is_string_dtype(series) or pd.api.types.is_object_dtype(series):
+            normalized = series.astype("string").str.strip()
+            null_mask = series.isna() | normalized.isna() | normalized.eq("")
+        else:
+            null_mask = series.isna()
+        summary[column] = round(float(null_mask.mean()), 4)
+    return summary
+
+
 def build_ingestion_audit_row(
     table: TableConfig,
     csv_path: Path,
+    raw_df: pd.DataFrame,
     cleaned: pd.DataFrame,
-    duplicate_rows: int,
+    validation: ContractValidationResult,
 ) -> pd.DataFrame:
+    source_row_count = len(raw_df)
+    row_count_after_transform = len(cleaned)
     return pd.DataFrame(
         [
             {
@@ -115,12 +140,19 @@ def build_ingestion_audit_row(
                 "source_file": table.csv_name,
                 "source_path": str(csv_path),
                 "export_type": table.export_type,
-                "row_count": len(cleaned),
-                "column_count": len(cleaned.columns),
-                "duplicate_rows_after_transform": duplicate_rows,
+                "source_row_count": source_row_count,
+                "source_column_count": len(raw_df.columns),
+                "row_count_after_transform": row_count_after_transform,
+                "column_count_after_transform": len(cleaned.columns),
+                "rows_removed_during_transform": source_row_count - row_count_after_transform,
+                "duplicate_rows_after_transform": validation.duplicate_rows,
                 "contract_owner": table.contract.owner,
                 "contract_description": table.contract.description,
                 "required_columns": ", ".join(table.contract.required_columns),
+                "non_empty_columns": ", ".join(table.contract.non_empty_columns),
+                "unique_columns": ", ".join(table.contract.unique_columns),
+                "null_rate_by_column": json.dumps(validation.null_rates, sort_keys=True),
+                "source_null_rate_by_column": json.dumps(summarize_null_rates(raw_df), sort_keys=True),
                 "sensitive_columns": ", ".join(table.contract.sensitive_columns),
                 "loaded_at_utc": datetime.now(timezone.utc),
             }
@@ -516,7 +548,10 @@ def transform_invitations(df: pd.DataFrame) -> pd.DataFrame:
         errors="coerce",
     )
     cleaned = drop_blank_rows(cleaned, ["sender_name", "recipient_name", "direction"])
-    cleaned = deduplicate_rows(cleaned)
+    cleaned = deduplicate_rows(
+        cleaned,
+        subset=["sender_name", "recipient_name", "sent_at", "direction"],
+    )
     return select_columns(
         cleaned,
         [
@@ -678,6 +713,7 @@ TABLES: dict[str, TableConfig] = {
                 "position",
                 "connected_on",
             ),
+            non_empty_columns=("connected_on",),
             sensitive_columns=("first_name", "last_name", "email_address", "url"),
             description="Professional network connections exported from LinkedIn.",
         ),
@@ -699,6 +735,7 @@ TABLES: dict[str, TableConfig] = {
                 "finished_on",
                 "is_current",
             ),
+            non_empty_columns=("company_name", "title", "started_on", "is_current"),
             sensitive_columns=("description",),
             description="Professional positions and career history.",
         ),
@@ -725,6 +762,7 @@ TABLES: dict[str, TableConfig] = {
                 "websites",
                 "instant_messengers",
             ),
+            non_empty_columns=("first_name", "last_name", "headline"),
             sensitive_columns=(
                 "first_name",
                 "last_name",
@@ -747,6 +785,7 @@ TABLES: dict[str, TableConfig] = {
         transform=transform_languages,
         contract=TableContract(
             required_columns=("name", "proficiency"),
+            non_empty_columns=("name", "proficiency"),
             description="Languages and proficiencies listed on the profile.",
         ),
     ),
@@ -765,6 +804,7 @@ TABLES: dict[str, TableConfig] = {
                 "finished_on",
                 "is_current_education",
             ),
+            non_empty_columns=("school_name", "is_current_education"),
             sensitive_columns=("notes",),
             description="Academic background and education timeline.",
         ),
@@ -784,6 +824,7 @@ TABLES: dict[str, TableConfig] = {
                 "finished_on",
                 "license_number",
             ),
+            non_empty_columns=("name", "authority"),
             sensitive_columns=("license_number", "url"),
             description="Certifications and credential metadata.",
         ),
@@ -809,6 +850,7 @@ TABLES: dict[str, TableConfig] = {
                 "endorser_first_name",
                 "endorser_last_name",
             ),
+            non_empty_columns=("skill_name", "endorsement_status"),
             sensitive_columns=(
                 "endorser_first_name",
                 "endorser_last_name",
@@ -825,6 +867,7 @@ TABLES: dict[str, TableConfig] = {
         transform=transform_company_follows,
         contract=TableContract(
             required_columns=("organization", "followed_on"),
+            non_empty_columns=("organization", "followed_on"),
             unique_columns=("organization", "followed_on"),
             description="Organizations followed by the member.",
         ),
@@ -845,6 +888,7 @@ TABLES: dict[str, TableConfig] = {
                 "recommendation_date",
                 "visibility",
             ),
+            non_empty_columns=("recommendation_text", "visibility"),
             unique_columns=("first_name", "last_name", "recommendation_date"),
             sensitive_columns=("first_name", "last_name", "recommendation_text"),
             description="Text recommendations received from professional contacts.",
@@ -858,6 +902,7 @@ TABLES: dict[str, TableConfig] = {
         transform=transform_skills,
         contract=TableContract(
             required_columns=("skill_name",),
+            non_empty_columns=("skill_name",),
             unique_columns=("skill_name",),
             description="Unique skills listed by the member.",
         ),
@@ -870,6 +915,7 @@ TABLES: dict[str, TableConfig] = {
         transform=transform_phone_numbers,
         contract=TableContract(
             required_columns=("extension", "phone_number", "phone_type"),
+            non_empty_columns=("phone_number",),
             unique_columns=("phone_number", "phone_type"),
             sensitive_columns=("extension", "phone_number"),
             description="Phone numbers registered in the profile account.",
@@ -884,6 +930,7 @@ TABLES: dict[str, TableConfig] = {
         transform=transform_email_addresses,
         contract=TableContract(
             required_columns=("email_address", "confirmed", "primary", "updated_on"),
+            non_empty_columns=("email_address", "confirmed", "primary"),
             unique_columns=("email_address",),
             sensitive_columns=("email_address",),
             description="Account email addresses and confirmation flags.",
@@ -898,6 +945,7 @@ TABLES: dict[str, TableConfig] = {
         transform=transform_registration,
         contract=TableContract(
             required_columns=("registered_at", "registration_ip", "subscription_types"),
+            non_empty_columns=("registered_at",),
             sensitive_columns=("registration_ip",),
             description="Registration metadata for the account.",
         ),
@@ -911,6 +959,7 @@ TABLES: dict[str, TableConfig] = {
         transform=transform_saved_job_alerts,
         contract=TableContract(
             required_columns=("alert_parameters", "query_context", "saved_search_id"),
+            non_empty_columns=("saved_search_id",),
             unique_columns=("saved_search_id",),
             description="Saved job alerts and search parameters.",
         ),
@@ -932,6 +981,7 @@ TABLES: dict[str, TableConfig] = {
                 "description",
                 "is_current_volunteering",
             ),
+            non_empty_columns=("company_name", "role", "is_current_volunteering"),
             unique_columns=("company_name", "role", "started_on"),
             sensitive_columns=("description",),
             description="Volunteering experiences and associated causes.",
@@ -953,6 +1003,7 @@ TABLES: dict[str, TableConfig] = {
                 "inviter_profile_url",
                 "invitee_profile_url",
             ),
+            non_empty_columns=("sender_name", "recipient_name", "direction"),
             unique_columns=("sender_name", "recipient_name", "sent_at", "direction"),
             sensitive_columns=(
                 "sender_name",
@@ -979,6 +1030,7 @@ TABLES: dict[str, TableConfig] = {
                 "started_at",
                 "finished_at",
             ),
+            non_empty_columns=("event_name", "status"),
             unique_columns=("event_name", "event_time"),
             sensitive_columns=("external_url",),
             description="Events tracked by LinkedIn, including attendance status.",
@@ -1000,6 +1052,7 @@ TABLES: dict[str, TableConfig] = {
                 "content_saved",
                 "notes_taken",
             ),
+            non_empty_columns=("content_title",),
             unique_columns=("content_title", "last_watched_at", "completed_at"),
             sensitive_columns=("notes_taken",),
             description="LinkedIn Learning content activity and completion status.",
@@ -1022,6 +1075,7 @@ TABLES: dict[str, TableConfig] = {
                 "resume_name",
                 "question_and_answers",
             ),
+            non_empty_columns=("company_name", "job_title"),
             unique_columns=("company_name", "job_title", "application_date"),
             sensitive_columns=(
                 "contact_email",
@@ -1036,25 +1090,36 @@ TABLES: dict[str, TableConfig] = {
 }
 
 
-def load_table(key: str, settings: ProjectSettings | None = None) -> pd.DataFrame:
+def load_table(
+    key: str,
+    settings: ProjectSettings | None = None,
+    conn: duckdb.DuckDBPyConnection | None = None,
+) -> pd.DataFrame:
     settings = settings or get_settings()
     table = TABLES[key]
     csv_path = settings.export_dir(table.export_type) / table.csv_name
     df = read_csv_safe(csv_path, **table.read_kwargs)
     cleaned = table.transform(df)
     validation = assert_contract(cleaned, table.contract)
-    write_dataframe_to_bronze(cleaned, table.bronze_table, settings=settings)
+    write_dataframe_to_bronze(
+        cleaned,
+        table.bronze_table,
+        settings=settings,
+        conn=conn,
+    )
     audit_row = build_ingestion_audit_row(
         table,
         csv_path,
+        df,
         cleaned,
-        duplicate_rows=validation.duplicate_rows,
+        validation=validation,
     )
     write_dataframe_to_bronze(
         audit_row,
         "ingestion_audit",
         mode="append",
         settings=settings,
+        conn=conn,
     )
     return cleaned
 
@@ -1062,7 +1127,17 @@ def load_table(key: str, settings: ProjectSettings | None = None) -> pd.DataFram
 def load_all_tables(settings: ProjectSettings | None = None) -> dict[str, int]:
     settings = settings or get_settings()
     loaded_rows: dict[str, int] = {}
-    for key in TABLES:
-        cleaned = load_table(key, settings=settings)
-        loaded_rows[key] = len(cleaned)
-    return loaded_rows
+    conn = connect_duckdb(settings=settings)
+
+    try:
+        conn.execute("BEGIN TRANSACTION")
+        for key in TABLES:
+            cleaned = load_table(key, settings=settings, conn=conn)
+            loaded_rows[key] = len(cleaned)
+        conn.execute("COMMIT")
+        return loaded_rows
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+    finally:
+        conn.close()

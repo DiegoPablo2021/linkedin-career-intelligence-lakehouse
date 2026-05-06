@@ -1,6 +1,33 @@
 version: 2
 
 models:
+  - name: stg_ingestion_audit
+    description: "Camada staging da auditoria operacional da ingestão com tipos normalizados e campos temporais prontos para análise."
+
+    columns:
+      - name: table_key
+        data_tests:
+          - not_null
+
+      - name: bronze_table
+        data_tests:
+          - not_null
+
+      - name: export_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [basic, complete]
+
+      - name: row_count_after_transform
+        data_tests:
+          - not_null
+
+      - name: loaded_at_utc
+        data_tests:
+          - not_null
+
   - name: stg_skills
     columns:
       - name: skill_name

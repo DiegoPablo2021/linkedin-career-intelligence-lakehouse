@@ -1,6 +1,53 @@
 version: 2
 
 models:
+  - name: mart_ingestion_audit_health_timeline
+    description: "Mart operacional com saúde da ingestão ao longo do tempo no grão de execução por tabela."
+
+    columns:
+      - name: loaded_at_utc
+        data_tests:
+          - not_null
+
+      - name: table_key
+        data_tests:
+          - not_null
+
+      - name: row_count_after_transform
+        data_tests:
+          - not_null
+
+      - name: health_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [saudavel, atencao, esvaziado, sem_dados]
+
+      - name: successful_load_flag
+        data_tests:
+          - not_null
+
+  - name: mart_ingestion_audit_null_rate_timeline
+    description: "Mart operacional com tendência temporal das taxas de null por coluna monitorada na ingestão."
+
+    columns:
+      - name: loaded_at_utc
+        data_tests:
+          - not_null
+
+      - name: table_key
+        data_tests:
+          - not_null
+
+      - name: monitored_column
+        data_tests:
+          - not_null
+
+      - name: null_rate_after_transform
+        data_tests:
+          - not_null
+
   - name: mart_skills_summary
     columns:
       - name: skill_category

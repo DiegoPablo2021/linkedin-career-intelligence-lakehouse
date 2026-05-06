@@ -1,0 +1,78 @@
+/*
+Tabela de destino: _Measures
+Display folder: Observability
+
+Instrução:
+- Crie ou reutilize a tabela `_Measures` no modelo.
+- Para cada medida abaixo, defina o Display Folder como `Observability`.
+- Não altere layout visual nesta etapa.
+*/
+
+MEASURE '_Measures'[Total Successful Loads] =
+    SUM ( fact_ingestion_audit_health_timeline[successful_load_flag] )
+
+MEASURE '_Measures'[Total Source Rows] =
+    SUM ( fact_ingestion_audit_health_timeline[source_row_count] )
+
+MEASURE '_Measures'[Total Rows After Transform] =
+    SUM ( fact_ingestion_audit_health_timeline[row_count_after_transform] )
+
+MEASURE '_Measures'[Total Rows Removed] =
+    SUM ( fact_ingestion_audit_health_timeline[rows_removed_during_transform] )
+
+MEASURE '_Measures'[Average Row Retention Rate] =
+    AVERAGE ( fact_ingestion_audit_health_timeline[row_retention_rate] )
+
+MEASURE '_Measures'[Average Row Retention Rate %] =
+    FORMAT ( [Average Row Retention Rate], "0.00%" )
+
+MEASURE '_Measures'[Health Issue Load Count] =
+    CALCULATE (
+        COUNTROWS ( fact_ingestion_audit_health_timeline ),
+        fact_ingestion_audit_health_timeline[health_status] <> "saudavel"
+    )
+
+MEASURE '_Measures'[Tables With Health Issues] =
+    CALCULATE (
+        DISTINCTCOUNT ( fact_ingestion_audit_health_timeline[table_key] ),
+        fact_ingestion_audit_health_timeline[health_status] <> "saudavel"
+    )
+
+MEASURE '_Measures'[Duplicate Alerts] =
+    CALCULATE (
+        COUNTROWS ( fact_ingestion_audit_health_timeline ),
+        fact_ingestion_audit_health_timeline[duplicate_alert_flag] = TRUE ()
+    )
+
+MEASURE '_Measures'[Average Null Rate] =
+    AVERAGE ( fact_ingestion_audit_null_rate_timeline[null_rate_after_transform] )
+
+MEASURE '_Measures'[Average Null Rate %] =
+    FORMAT ( [Average Null Rate], "0.00%" )
+
+MEASURE '_Measures'[Max Null Rate] =
+    MAX ( fact_ingestion_audit_null_rate_timeline[null_rate_after_transform] )
+
+MEASURE '_Measures'[Max Null Rate %] =
+    FORMAT ( [Max Null Rate], "0.00%" )
+
+MEASURE '_Measures'[Null Rate Alerts] =
+    CALCULATE (
+        COUNTROWS ( fact_ingestion_audit_null_rate_timeline ),
+        fact_ingestion_audit_null_rate_timeline[null_rate_alert_flag] = TRUE ()
+    )
+
+MEASURE '_Measures'[Latest Load Date] =
+    MAX ( fact_ingestion_audit_health_timeline[loaded_at_utc] )
+
+MEASURE '_Measures'[Average Null Rate Delta] =
+    AVERAGE ( fact_ingestion_audit_null_rate_timeline[null_rate_delta] )
+
+MEASURE '_Measures'[Average Null Rate Delta %] =
+    FORMAT ( [Average Null Rate Delta], "0.00%" )
+
+MEASURE '_Measures'[Rows Removed Rate] =
+    DIVIDE ( [Total Rows Removed], [Total Source Rows] )
+
+MEASURE '_Measures'[Rows Removed Rate %] =
+    FORMAT ( [Rows Removed Rate], "0.00%" )
