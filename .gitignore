@@ -35,6 +35,7 @@ powerbi/exports/*.json
 *.wal
 *.tmp
 warehouse/
+linkedin_career_intelligence.duckdb
 
 # Jupyter
 .ipynb_checkpoints/
@@ -57,3 +58,4 @@ datetime_checks.json
 tmp_*.ps1
 powerbi_cleanup_validation2.json
 powerbi_column_inventory.json
+scripts/powerbi/html_measures_dump/

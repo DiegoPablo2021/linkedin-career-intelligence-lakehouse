@@ -334,6 +334,62 @@ EXPORT_SPECS: list[ExportSpec] = [
         """,
     ),
     ExportSpec(
+        output_name="fact_ingestion_audit_health_timeline",
+        source_table="main.mart_ingestion_audit_health_timeline",
+        description="Linha do tempo operacional da saúde da ingestão por carga e tabela.",
+        query="""
+        select
+            loaded_at_utc,
+            loaded_on,
+            loaded_year_month,
+            table_key,
+            bronze_table,
+            source_file,
+            export_type,
+            source_row_count,
+            source_column_count,
+            row_count_after_transform,
+            column_count_after_transform,
+            rows_removed_during_transform,
+            duplicate_rows_after_transform,
+            row_retention_rate,
+            row_count_change_vs_previous_load,
+            rows_removed_change_vs_previous_load,
+            duplicate_alert_flag,
+            row_removal_alert_flag,
+            health_status,
+            successful_load_flag
+        from main.mart_ingestion_audit_health_timeline
+        order by loaded_at_utc, table_key
+        """,
+    ),
+    ExportSpec(
+        output_name="fact_ingestion_audit_null_rate_timeline",
+        source_table="main.mart_ingestion_audit_null_rate_timeline",
+        description="Linha do tempo operacional das taxas de null por tabela e coluna monitorada.",
+        query="""
+        select
+            loaded_at_utc,
+            loaded_on,
+            loaded_year_month,
+            table_key,
+            bronze_table,
+            export_type,
+            source_file,
+            source_row_count,
+            row_count_after_transform,
+            rows_removed_during_transform,
+            monitored_column,
+            null_rate_before_transform,
+            null_rate_after_transform,
+            null_rate_delta,
+            null_rate_change_vs_previous_load,
+            null_rate_alert_flag
+        from main.mart_ingestion_audit_null_rate_timeline
+        order by loaded_at_utc, table_key, monitored_column
+        """,
+    ),
+    ExportSpec(
         output_name="fact_contact_account",
         source_table="main.mart_contact_account_summary",
         description="Indicadores de contatos e metadados de conta.",
@@ -371,6 +427,8 @@ TEMPORAL_SPECS: list[tuple[str, str, str]] = [
     ("main.mart_file_inventory_summary", "primeira_execucao_inventario", "timestamp"),
     ("main.mart_file_inventory_summary", "ultima_execucao_inventario", "timestamp"),
     ("main.mart_pipeline_health_summary", "latest_inventory_timestamp", "timestamp"),
+    ("main.mart_ingestion_audit_health_timeline", "loaded_on", "date"),
+    ("main.mart_ingestion_audit_null_rate_timeline", "loaded_on", "date"),
     ("main.mart_contact_account_summary", "first_registered_at", "timestamp"),
     ("main.mart_contact_account_summary", "latest_registered_at", "timestamp"),
 ]
