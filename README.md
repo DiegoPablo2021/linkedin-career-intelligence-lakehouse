@@ -1,300 +1,446 @@
 # LinkedIn Career Intelligence Lakehouse
 
-Projeto de engenharia de dados e analytics que transforma exportações pessoais do LinkedIn em uma plataforma analítica com ingestão em Python, modelagem em dbt, armazenamento em DuckDB e consumo via Streamlit.
+![Python](https://img.shields.io/badge/Python-ETL%20%26%20contracts-3776AB?style=flat-square&logo=python&logoColor=white)
+![DuckDB](https://img.shields.io/badge/DuckDB-local%20analytics%20warehouse-FECD45?style=flat-square&logo=duckdb&logoColor=black)
+![dbt](https://img.shields.io/badge/dbt-semantic%20marts-FF694B?style=flat-square&logo=dbt&logoColor=white)
+![Power BI](https://img.shields.io/badge/Power%20BI-executive%20dashboard-F2C811?style=flat-square&logo=powerbi&logoColor=black)
+![Snapshots](https://img.shields.io/badge/Historical%20Snapshots-governed%20layer-0F766E?style=flat-square)
+![Observability](https://img.shields.io/badge/Observability-pipeline%20%26%20data%20quality-111827?style=flat-square)
+
+An enterprise-style analytics case study that transforms LinkedIn personal exports into a governed decision-support platform. The repository combines ingestion engineering, semantic modeling, historical snapshots, observability metrics, and a premium Power BI experience built with DAX-driven HTML/CSS layouts.
 
 <p align="center">
-  <img src="docs/images/linkedin-lakehouse-end-to-end.svg" alt="Arquitetura End-to-End" width="100%" />
+  <img src="docs/images/linkedin-lakehouse-end-to-end.svg" alt="LinkedIn Career Intelligence Lakehouse architecture" width="100%" />
 </p>
 
+## Executive Project Overview
 
-## Objetivo
+Career data is usually fragmented, static, and difficult to analyze over time. LinkedIn exports contain valuable signals about professional trajectory, network growth, applications, invitations, events, recommendations, and platform activity, but they are not structured for executive analytics.
 
-Construir um case de nível profissional que mostre:
+This project solves that problem by turning raw LinkedIn exports into a reproducible analytics platform with:
 
-- ingestão estruturada de múltiplos arquivos do export do LinkedIn
-- organização por camadas `raw -> bronze -> staging -> intermediate -> marts -> app`
-- contratos de dados explícitos na ingestão, com colunas obrigatórias e trilha de auditoria
-- modelagem e testes analíticos com dbt
-- consumo em aplicativo Streamlit com visão executiva e exploratória
-- separação clara entre exploração em notebooks e pipeline reproduzível
+- governed ingestion contracts
+- a local analytical warehouse
+- dbt-modeled marts
+- historical snapshot facts
+- data quality and observability telemetry
+- an executive Power BI layer with custom HTML-based pages
 
-## Fluxo End-to-End
+The result is not a generic dashboard. It is a portfolio-grade analytics platform focused on:
+
+- career intelligence
+- professional presence and reputation
+- historical trend analysis
+- pipeline reliability
+- governed semantic modeling
+
+### Why historical snapshots matter
+
+Current-state metrics are useful but incomplete. Executive analytics needs historical context. Snapshot facts add that context by preserving monthly evolution across networking, applications, presence, career progression, and data quality, without relying on external APIs or fabricated history.
+
+### Why governance and observability matter
+
+The project treats personal analytics as a production-grade data problem. That means the platform must explain:
+
+- what was loaded
+- what changed during transformation
+- how quality behaved over time
+- whether the pipeline is operationally trustworthy
+
+## Enterprise Architecture Overview
+
+The stack is intentionally layered to separate responsibilities and keep the Power BI layer focused on semantic logic and UX instead of raw data wrangling.
+
+| Layer | Technology | Role |
+|---|---|---|
+| Ingestion | Python, Pandas | Reads LinkedIn exports, applies contracts, validates schemas, writes audited bronze tables |
+| Storage | DuckDB | Lightweight analytical warehouse for local development and reproducible execution |
+| Transformation | dbt, SQL | Standardizes staging, enriches intermediate models, materializes business marts |
+| Historical Layer | Python, DuckDB | Builds governed snapshot facts from real event history and pipeline audit timelines |
+| Semantic Layer | Power BI, DAX | Defines business measures, relationships, folders, and executive KPIs |
+| Presentation Layer | Power BI HTML Content, HTML/CSS | Renders premium executive pages with narrative blocks, KPI systems, and compact layouts |
+
+### Core technologies
+
+- `Python`: ingestion orchestration, warehouse utilities, snapshot generation, exports
+- `Pandas`: ingestion shaping and file-level validation logic
+- `DuckDB`: local warehouse for bronze, staging-friendly sources, marts, and snapshots
+- `dbt`: transformation, tests, reusable analytical marts
+- `SQL`: staging, enrichment, summary modeling, observability timelines
+- `Power BI`: semantic model, DAX measures, executive reporting
+- `DAX`: KPIs, observability logic, historical measures, HTML page rendering
+- `HTML/CSS inside Power BI`: executive UX layer for premium portfolio-grade pages
+
+## Solution Architecture Flow
 
 ```text
-CSV exportados do LinkedIn
--> Python ingestion layer
--> DuckDB local com schema bronze
+LinkedIn Export Files
+-> Python Ingestion + Contracts
+-> bronze.* in DuckDB
 -> dbt staging / intermediate / marts
--> Streamlit analytics app
--> publicação em GitHub / portfólio
+-> Historical Snapshot Builder
+-> Power BI export layer
+-> Semantic model + DAX
+-> HTML/CSS executive dashboards
 ```
 
-O diagrama no topo do README continua representando o fluxo atual do projeto.
+### Operational flow
 
-## Domínios já cobertos
+1. Python ingests LinkedIn export files into `bronze`, enforcing explicit contracts.
+2. Each load records audit metadata in `bronze.ingestion_audit`.
+3. dbt materializes staging, intermediate, and mart models for analytics consumption.
+4. Snapshot scripts build governed historical facts from real monthly aggregates and real observability records.
+5. Export scripts generate Power BI-ready datasets.
+6. Power BI consumes the semantic layer and renders executive pages, including premium HTML/CSS layouts.
 
-- Profile
-- Connections
-- Career / Positions
-- Education
-- Certifications
-- Languages
-- Endorsements
-- Company Follows
-- Recommendations Received
-- Skills
-- Invitations
-- Events
-- Volunteering
-- Learning
-- Job Applications
-- Saved Job Alerts
-- File Inventory / Pipeline Health
+## Main Dashboard Pages
 
-## Estrutura do repositório
+### Executive Overview
 
-- `linkedin_career_intelligence/`: pacote principal com configuração, utilitários DuckDB, helpers Streamlit e lógica de ingestão
-- `scripts/run_ingestion.py`: carga consolidada das tabelas suportadas
-- `scripts/ingestion/_cli.py`: runner reutilizável para cargas unitárias por tabela
-- `scripts/run_pipeline.py`: execução end-to-end com ingestão, inventário e dbt
-- `scripts/run_validation.py`: validação completa com `pytest`, `sqlfluff`, bootstrap sintético e `dbt build`
-- `scripts/ci/bootstrap_validation_warehouse.py`: geração de warehouse sintético para CI e testes analíticos reproduzíveis
-- `scripts/profiling/`: inventário técnico dos exports e artefatos de profiling
-- `scripts/utils/`: inspeções operacionais do warehouse
-- `linkedin_career_intelligence_dbt/`: staging, intermediate, marts, testes e configuração dbt
-- `apps/`: dashboard Streamlit com páginas analíticas por domínio
-- `data/raw/`: exports originais do LinkedIn
-- `data/bronze/file_inventory/`: snapshots do inventário técnico dos arquivos encontrados
-- `warehouse/`: arquivo local `.duckdb` usado pelo app e pelo dbt
-- `notebooks/`: exploração, profiling e validação de regras antes de promover para código
-- `profiles/`: profile local do dbt para rodar o projeto sem depender do home directory
-- `docs/`: documentação complementar da arquitetura, operação e publicação
+Purpose:
+- provide a high-level view of professional trajectory, network, applications, presence, and pipeline health
 
-## Aplicativo Streamlit
+Core KPIs:
+- connections
+- applications
+- recommendations
+- historical snapshot counts
+- refresh metadata
+- pipeline reliability signals
 
-O app agora traz uma Home mais orientada a apresentação do case:
+Analytical value:
+- combines current-state and historical indicators into a single executive landing page
 
-- hero executivo do projeto
-- bloco de autor com links principais
-- banner de demo pública com layout estável
-- páginas por domínio com helpers visuais reutilizáveis
+Executive insight:
+- answers whether the professional profile is growing, visible, and operationally well governed
 
-Páginas disponíveis hoje:
+### Networking Intelligence
 
-- `Health`
-- `Connections`
-- `Career`
-- `Education`
-- `Certifications`
-- `Languages`
-- `Profile`
-- `Endorsements`
-- `Company Follows`
-- `Recommendations`
-- `Skills`
-- `Engagement`
-- `Learning`
-- `Jobs`
+Purpose:
+- analyze professional network scale, reach, growth, and relationship quality
 
-## Galeria do app
+Core KPIs:
+- total connections
+- connections with email
+- coverage rates
+- invitations
+- recommendations
+- network growth signals
+
+Analytical value:
+- measures both volume and relationship traceability
+
+Executive insight:
+- turns network data into a maturity signal instead of a simple contact count
+
+### Career & Education Intelligence
+
+Purpose:
+- evaluate professional evolution, learning path, certifications, and trajectory depth
+
+Core KPIs:
+- positions started
+- current positions
+- average position duration
+- education started
+- certifications
+- trajectory maturity indicators
+
+Analytical value:
+- combines career progression with structured learning signals
+
+Executive insight:
+- shows whether the profile reflects continuity, depth, and technical credibility
+
+### Applications & Presence Intelligence
+
+Purpose:
+- monitor applications, invitations, recommendations, events, and visibility signals
+
+Core KPIs:
+- total applications
+- applications momentum
+- events
+- invitations
+- recommendations
+- engagement and presence scores
+
+Analytical value:
+- merges opportunity pipeline with professional exposure and reputation evidence
+
+Executive insight:
+- reveals whether professional activity is visible, consistent, and opportunity-oriented
+
+### Pipeline & Governance Intelligence
+
+Purpose:
+- assess operational reliability, inventory footprint, governance, and analytical readiness
+
+Core KPIs:
+- successful reads
+- failed reads
+- read success and failure rates
+- data quality score
+- inventory files, rows, and size
+- freshness
+
+Analytical value:
+- shifts the narrative from dashboard output to data platform trust
+
+Executive insight:
+- demonstrates whether the reporting layer is supported by a reliable and auditable pipeline
+
+### Pipeline & Data Quality Observability
+
+Purpose:
+- monitor the operational health of ingestion, retention, null rate behavior, and alert conditions
+
+Core KPIs:
+- health score
+- monitored loads
+- row retention
+- source vs transformed rows
+- average and max null rate
+- duplicate and removal alerts
+
+Analytical value:
+- provides observability-grade visibility into data quality and pipeline behavior over time
+
+Executive insight:
+- makes it possible to explain trust, degradation, and readiness with evidence
+
+## Historical Snapshot Strategy
+
+The snapshot layer exists to enrich executive analytics with governed historical behavior without introducing synthetic noise.
+
+### Design principles
+
+- use real monthly aggregates whenever available
+- derive cumulative series only from real events
+- preserve actual totals as the authoritative endpoint
+- mark every snapshot row with methodology and provenance
+
+### Phase 1 scope
+
+Implemented snapshot facts:
+
+- `fact_snapshot_network_growth`
+- `fact_snapshot_applications`
+- `fact_snapshot_presence`
+- `fact_snapshot_career_education`
+- `fact_snapshot_data_quality`
+- `dim_snapshot_method`
+- `dim_snapshot_run`
+
+Phase 1 intentionally excludes synthetic backfill. All current rows are actual or cumulatively derived from real historical events.
+
+### Governance fields
+
+Snapshot facts include:
+
+- `snapshot_date`
+- `snapshot_method`
+- `snapshot_source`
+- `snapshot_run_id`
+- `snapshot_created_at`
+- `is_simulated_snapshot`
+
+## Observability & Governance
+
+This repository treats observability as a first-class analytical product.
+
+### Pipeline health
+
+The pipeline records:
+
+- successful and failed reads
+- execution freshness
+- inventory footprint
+- data quality score
+
+### Data quality monitoring
+
+The ingestion audit captures:
+
+- source row count
+- source column count
+- transformed row count
+- transformed column count
+- rows removed during transform
+- duplicate rows after transform
+- non-empty columns
+- unique columns
+- null rate by column before and after transformation
+
+### Operational readiness
+
+dbt marts and Power BI measures turn these logs into readiness signals, alert counts, retention metrics, and historical trends.
+
+### Governance value
+
+The governance layer improves:
+
+- auditability
+- troubleshooting
+- semantic trust
+- pipeline explainability
+- executive confidence in reported metrics
+
+## Power BI HTML/CSS Layer
+
+The Power BI report is not built only with native cards and charts. It also includes a custom HTML/CSS rendering layer driven by DAX measures.
+
+This approach is used to:
+
+- create premium executive headers
+- build visually consistent KPI systems
+- render narrative insight blocks
+- control responsive compaction inside fixed Power BI canvases
+- improve storytelling beyond standard Power BI visual defaults
+
+For the technical implementation details, see [docs/POWERBI_LAYER.md](docs/POWERBI_LAYER.md).
+
+## Key Technical Highlights
+
+- governed Python ingestion with explicit schema contracts
+- DuckDB warehouse optimized for local reproducibility
+- dbt-driven marts for analytics and observability
+- historical snapshot architecture without API dependency
+- Power BI semantic model with dedicated historical snapshot measures
+- observability facts built from ingestion audit timelines
+- premium HTML/CSS pages rendered from DAX
+- compact UX optimization for Power BI HTML Content
+- executive narrative cards combined with operational metrics
+
+## Repository Structure
+
+```text
+linkedin-career-intelligence-lakehouse/
+├─ apps/                              # Streamlit app layer and supporting pages
+├─ data/
+│  ├─ raw/                            # Private LinkedIn exports
+│  └─ bronze/file_inventory/          # File inventory snapshots
+├─ demo/                              # Sanitized public demo database
+├─ docs/
+│  ├─ images/                         # Architecture and dashboard visuals
+│  └─ POWERBI_LAYER.md                # Technical Power BI documentation
+├─ linkedin_career_intelligence/      # Python package: config, ingestion, contracts, DuckDB helpers
+├─ linkedin_career_intelligence_dbt/
+│  └─ models/
+│     ├─ staging/                     # Standardized SQL layer
+│     ├─ intermediate/                # Reusable enriched models
+│     └─ marts/core/                  # Final analytics and observability marts
+├─ powerbi/
+│  ├─ exports/                        # Power BI-ready CSV/Parquet exports
+│  ├─ *.pbix                          # Power BI Desktop model/report
+│  ├─ *.html                          # HTML layout references
+│  └─ observability_measures.dax      # DAX package for observability
+├─ profiles/                          # Local dbt profile
+├─ scripts/
+│  ├─ ingestion/                      # Table-level ingestion utilities
+│  ├─ profiling/                      # Export inventory and profiling
+│  ├─ snapshots/                      # Historical snapshot generation
+│  ├─ powerbi/                        # Semantic model + HTML measure automation
+│  ├─ utils/                          # Exports, warehouse inspection, validation
+│  ├─ run_ingestion.py
+│  ├─ run_pipeline.py
+│  └─ run_validation.py
+├─ tests/                             # Python validation layer
+├─ warehouse/                         # Local DuckDB warehouse location
+└─ README.md
+```
+
+## Screenshots
+
+Architecture:
 
 <p align="center">
-  <img src="docs/images/app-home-highlight.svg" alt="Home Overview" width="100%" />
+  <img src="docs/images/linkedin-lakehouse-end-to-end.svg" alt="End-to-end architecture" width="100%" />
+</p>
+
+Application and analytical storytelling:
+
+<p align="center">
+  <img src="docs/images/app-home-highlight.svg" alt="Executive application home" width="100%" />
 </p>
 
 <p align="center">
-  <img src="docs/images/app-profile-highlight.svg" alt="Profile Overview" width="100%" />
+  <img src="docs/images/app-profile-highlight.svg" alt="Profile and executive narrative layer" width="100%" />
 </p>
 
 <p align="center">
-  <img src="docs/images/app-health-highlight.svg" alt="Health Overview" width="100%" />
+  <img src="docs/images/app-health-highlight.svg" alt="Health and observability view" width="100%" />
 </p>
 
-## Como rodar localmente
+## Technical Learnings
 
-### 1. Instalar dependências
+### Architectural decisions
+
+- separating ingestion, transformation, semantic modeling, and presentation reduces technical debt
+- keeping Power BI focused on business logic and UX produces a cleaner semantic layer
+- using DuckDB and dbt together creates a strong local analytics platform without unnecessary infrastructure overhead
+
+### Performance considerations
+
+- heavy shaping stays outside Power BI
+- HTML measures are compacted to fit fixed Power BI containers
+- snapshot facts are intentionally narrow and governed to avoid unnecessary bloat
+
+### Snapshot challenges
+
+- historical depth is only as rich as the available event history
+- cumulative snapshots must remain traceable and deterministic
+- simulated backfill must be explicitly separated from actual history
+
+### Power BI limitations and workarounds
+
+- HTML Content does not support JavaScript
+- interactive behavior must come from slicers, relationships, and DAX context
+- responsive layout inside DAX-rendered HTML requires strict control over padding, min-height, gap, and overflow
+
+### HTML/CSS inside DAX
+
+- premium design in Power BI is possible, but maintainability depends on reusable visual patterns
+- compact executive layouts require repeated fit adjustments to avoid internal scrollbars
+- narrative cards are useful, but they must be dimensioned carefully to coexist with KPIs in a fixed viewport
+
+## Future Improvements
+
+- orchestrate the full pipeline with a scheduler or workflow engine
+- add CI/CD for semantic layer validation and documentation linting
+- extend snapshot strategy with governed simulated backfill when justified
+- strengthen semantic model automation and deployment workflows
+- add optional API-based enrichment for near-real-time profile signals
+- explore cloud deployment for warehouse, dbt execution, and dashboard distribution
+
+## Local Execution
+
+Install and run locally:
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-```
-
-### 2. Executar a ingestão
-
-```powershell
 python scripts\run_ingestion.py
 python scripts\profiling\inventory_linkedin_exports.py
-```
-
-### 3. Rodar dbt
-
-```powershell
+cd linkedin_career_intelligence_dbt
 dbt build --profiles-dir ..\profiles
-```
-
-Execute o comando a partir da pasta `linkedin_career_intelligence_dbt/`.
-
-### 4. Subir o app
-
-```powershell
-streamlit run apps\Home.py
-```
-
-No ambiente local atual, a abertura em rede foi estabilizada para o IP:
-
-```text
-http://192.168.1.101:8501/
-```
-
-Se quiser testar explicitamente o modo público com a base sanitizada:
-
-```powershell
-$env:LINKEDIN_DB_PATH='demo/linkedin_career_intelligence_demo.duckdb'
-streamlit run apps\Home.py
-```
-
-### 5. Rodar tudo de ponta a ponta
-
-```powershell
+cd ..
 python scripts\run_pipeline.py
 ```
 
-### 6. Rodar a validação completa de engenharia
+Power BI export layer:
 
 ```powershell
-python scripts\run_validation.py
+python scripts\utils\export_powerbi_layer.py
+python scripts\powerbi\export_snapshot_tables.py
 ```
 
-Esse fluxo executa:
+## Author
 
-- testes Python com `pytest`
-- lint SQL com `sqlfluff`
-- bootstrap de um warehouse sintético de validação
-- `dbt build` completo contra a base sintética
+**Diego Pablo**
 
-## Modelagem do projeto
-
-### Bronze
-
-Camada física carregada pelo Python para o DuckDB com tabelas como:
-
-- `bronze.profile`
-- `bronze.connections`
-- `bronze.positions`
-- `bronze.skills`
-- `bronze.invitations`
-- `bronze.learning`
-- `bronze.job_applications`
-- `bronze.ingestion_audit`
-
-### Staging
-
-Camada dbt para padronização leve dos dados brutos:
-
-- `stg_profile`
-- `stg_connections`
-- `stg_skills`
-- `stg_invitations`
-- `stg_learning`
-- `stg_job_applications`
-
-### Intermediate
-
-Camada dbt para enriquecimento, classificação e criação de campos analíticos:
-
-- `int_profile_enriched`
-- `int_connections_enriched`
-- `int_skills_enriched`
-- `int_invitations_enriched`
-- `int_learning_enriched`
-- `int_job_applications_enriched`
-
-### Marts
-
-Camada final para consumo do app:
-
-- `mart_pipeline_health_summary`
-- `mart_file_inventory_summary`
-- `mart_connections_summary`
-- `mart_career_progression`
-- `mart_profile_summary`
-- `mart_skills_summary`
-- `mart_learning_summary`
-- `mart_job_applications_summary`
-- `mart_saved_job_alerts_summary`
-
-## Decisões de arquitetura
-
-- `silver` e `gold` existem como schemas possíveis no DuckDB, mas o fluxo atual materializa a jornada analítica principalmente em `bronze` + `main`
-- notebooks são usados para exploração e validação, não para ETL oficial
-- `intermediate` é mantida apenas quando gera enriquecimento reaproveitável
-- páginas do app são orientadas por domínio de negócio, não necessariamente uma por CSV
-- a camada Python mantém contratos de dados por tabela para explicitar colunas obrigatórias, sensibilidade e contexto de governança
-- cada carga registra auditoria em `bronze.ingestion_audit`, permitindo rastrear origem, volume e contrato aplicado
-- artefatos gerados como `target`, `logs`, `dbt_packages`, `pyc` e `.duckdb` foram ocultados do editor para reduzir ruído operacional
-
-## Qualidade e operação
-
-- `pytest` para regras Python
-- `dbt build` para modelos e testes analíticos
-- `sqlfluff` configurado para DuckDB + dbt
-- macros dbt de sanitização textual para proteger o app contra variações de tipo nos exports reais
-- `inspect_warehouse.py` para inspecionar o banco local sem precisar abrir o arquivo binário `.duckdb`
-- auditoria de ingestão persistida no próprio warehouse para suporte a troubleshooting e governança
-- CI no GitHub Actions com base sintética para validar o projeto sem depender dos exports privados
-
-## Deploy público seguro
-
-Para publicar o app sem expor o export privado do LinkedIn:
-
-1. mantenha a base real em `warehouse/linkedin_career_intelligence.duckdb`
-2. gere a base pública em `demo/linkedin_career_intelligence_demo.duckdb`
-3. publique o app usando apenas os arquivos versionados do repositório
-
-Comando para regenerar a base demo:
-
-```powershell
-$env:PYTHONPATH='.'
-.\.venv\Scripts\python.exe scripts\utils\create_public_demo_db.py
-```
-
-Resolução do banco no app:
-- `LINKEDIN_DB_PATH`, quando configurado explicitamente
-- base privada em `warehouse/`, quando disponível
-- base demo em `demo/`, quando a privada não existir no ambiente
-
-Isso permite desenvolvimento local com dados reais e deploy público com dados anonimizados.
-
-## Roadmap de publicação
-
-Próximos passos naturais para entrega pública:
-
-- revisão final de UX e narrativa do app
-- publicação do repositório no GitHub
-- criação de uma página de case no portfólio com prints, diagrama e stack
-- eventual deploy do app em Streamlit Community Cloud ou similar
-
-## Documentação complementar
-
-- [Arquitetura](docs/architecture.md)
-- [Guia de desenvolvimento](docs/development.md)
-- [Roadmap](docs/roadmap.md)
-- [Case assessment](docs/case_assessment.md)
-- [Project Blueprint](docs/project_blueprint.md)
-- [Publishing Checklist](docs/publishing_checklist.md)
-- [GitHub Repo Copy](docs/github_repo_copy.md)
-- [Portfolio Case](docs/portfolio_case.md)
-- [Data Dictionary](docs/data_dictionary.md)
-- [Runbook](docs/runbook.md)
-- [Guia Rápido e Documentação](docs/guia_rapido_e_documentacao.md)
-- [Explicação do Projeto](docs/project_overview_explanation.md)
-- [Explicação Técnica](docs/technical_explanation.md)
-
-## Autor
-
-Diego Pablo  
-GitHub: https://github.com/DiegoPablo2021/  
-Portfolio: https://diego-pablo.vercel.app/  
-LinkedIn: https://www.linkedin.com/in/diego-pablo/  
-E-mail: diegopmenezes@hotmail.com
+- GitHub: <https://github.com/DiegoPablo2021/>
+- Portfolio: <https://diego-pablo.vercel.app/>
+- LinkedIn: <https://www.linkedin.com/in/diego-pablo/>
+- Email: <diegopmenezes@hotmail.com>
