@@ -34,6 +34,15 @@ The result is not a generic dashboard. It is a portfolio-grade analytics platfor
 - pipeline reliability
 - governed semantic modeling
 
+## Índice Da Documentação
+
+Use estes documentos como referência canônica para operação, arquitetura e apresentação:
+
+- [Workflows do GitHub Actions](docs/GITHUB_ACTIONS_WORKFLOWS.md)
+- [Camada Power BI](docs/POWERBI_LAYER.md)
+
+Notas operacionais e de apoio permanecem apenas locais em `private_docs/`.
+
 ### Why historical snapshots matter
 
 Current-state metrics are useful but incomplete. Executive analytics needs historical context. Snapshot facts add that context by preserving monthly evolution across networking, applications, presence, career progression, and data quality, without relying on external APIs or fabricated history.
@@ -334,28 +343,28 @@ The pipeline scans `data/raw`, detects the latest valid directory for each expor
 
 Detailed workflow documentation lives in [docs/GITHUB_ACTIONS_WORKFLOWS.md](docs/GITHUB_ACTIONS_WORKFLOWS.md).
 
-## Monthly LinkedIn Refresh Workflow
+## Fluxo Mensal De Refresh Do LinkedIn
 
-This project is designed for monthly semi-automated operation. The LinkedIn export remains manual and everything after that is automated.
+Este projeto foi desenhado para operação mensal semi-automatizada. O export do LinkedIn continua manual e tudo depois disso é automatizado.
 
-### Step-by-step operational flow
+### Fluxo operacional passo a passo
 
-1. Export your LinkedIn data manually from LinkedIn.
-2. Extract the exported files into `data/raw/basic_export_YYYY_MM_DD` and `data/raw/complete_export_YYYY_MM_DD`.
-3. Trigger the GitHub Actions `Operational Pipeline` with `workflow_dispatch` or run `python scripts\run_pipeline.py --mode manual_exports` locally.
-4. The pipeline resolves the most recent valid export folders automatically.
-5. Bronze ingestion updates the DuckDB warehouse.
-6. dbt rebuilds staging, intermediate models, and marts.
-7. Power BI exports are regenerated in a consistent output directory.
-8. Historical snapshots are rebuilt and validated.
-9. Final observability and output validation confirms the refresh completed successfully.
+1. Exporte os dados do LinkedIn manualmente.
+2. Extraia os arquivos exportados para `data/raw/basic_export_YYYY_MM_DD` e `data/raw/complete_export_YYYY_MM_DD`.
+3. Dispare o GitHub Actions `Operational Pipeline` com `workflow_dispatch` ou execute `python scripts\run_pipeline.py --mode manual_exports` localmente.
+4. O pipeline resolve automaticamente as pastas válidas mais recentes.
+5. A ingestion bronze atualiza o warehouse DuckDB.
+6. O dbt reconstrói staging, intermediate models e marts.
+7. Os exports do Power BI são regenerados em um diretório de saída consistente.
+8. Os historical snapshots são reconstruídos e validados.
+9. A validação final de observability e de outputs confirma que o refresh foi concluído com sucesso.
 
-### Operational notes
+### Notas operacionais
 
-- If one export type is missing, the resolver tries a compatible fallback folder that still contains the required files.
-- If no compatible folder exists, the pipeline fails early with a clear message.
-- Local operational exports default to `powerbi/exports`.
-- GitHub Actions can publish artifacts to a separate directory such as `artifacts/powerbi_exports`.
+- Se um tipo de export estiver ausente, o resolver tenta uma pasta de fallback compatível que ainda contenha os arquivos necessários.
+- Se nenhuma pasta compatível existir, o pipeline falha cedo com uma mensagem clara.
+- Os exports operacionais locais usam `powerbi/exports` por padrão.
+- O GitHub Actions pode publicar artifacts em um diretório separado, como `artifacts/powerbi_exports`.
 
 ## Key Technical Highlights
 

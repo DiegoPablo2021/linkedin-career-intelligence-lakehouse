@@ -60,3 +60,6 @@ tmp_*.ps1
 powerbi_cleanup_validation2.json
 powerbi_column_inventory.json
 scripts/powerbi/html_measures_dump/
+
+# Documentação privada local
+private_docs/

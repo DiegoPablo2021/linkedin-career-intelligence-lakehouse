@@ -1,14 +1,14 @@
-# Power BI Layer
+# Camada Power BI
 
-## Purpose
+## Propósito
 
-This document explains the technical design of the Power BI layer that sits on top of the LinkedIn Career Intelligence Lakehouse. It focuses on semantic modeling, DAX strategy, HTML/CSS rendering, observability integration, responsive layout decisions, and the tradeoffs required to build an executive-grade report inside Power BI Desktop.
+Este documento descreve o design técnico da camada Power BI que fica sobre o LinkedIn Career Intelligence Lakehouse. O foco está em semantic modeling, estratégia de DAX, rendering com HTML/CSS, integração com observability, decisões de layout responsivo e tradeoffs necessários para sustentar um report de nível executivo dentro do Power BI Desktop.
 
-The goal of this layer is not to compensate for weak upstream data modeling. The goal is to expose a governed, performant, and recruiter-grade analytics experience on top of a properly engineered warehouse and dbt mart structure.
+A intenção desta camada não é compensar uma modelagem fraca na origem. O objetivo é expor uma experiência analítica governada, performática e adequada para recrutadores sobre um warehouse e uma estrutura de marts bem desenhados.
 
-## 1. Power BI Layer Architecture
+## 1. Arquitetura Da Camada Power BI
 
-The Power BI layer consumes curated exports derived from DuckDB and dbt, not raw LinkedIn files.
+A camada Power BI consome exports curados derivados de DuckDB e dbt, e não arquivos brutos do LinkedIn.
 
 ```text
 DuckDB + dbt marts
@@ -19,84 +19,84 @@ DuckDB + dbt marts
 -> executive pages
 ```
 
-### Architectural principles
+### Princípios Arquiteturais
 
-- keep ingestion and transformation outside Power BI
-- keep the semantic model readable and intentionally scoped
-- centralize business logic in `_Measures`
-- isolate historical behavior in snapshot facts
-- isolate observability and governance in dedicated facts and folders
-- use HTML Content for layout control, not for business logic
+- manter ingestion e transformation fora do Power BI
+- manter o semantic model legível e com escopo intencional
+- centralizar a lógica de negócio em `_Measures`
+- isolar o comportamento histórico em snapshot facts
+- isolar observability e governance em facts e folders dedicados
+- usar HTML Content para controle de layout, não para lógica de negócio
 
-### Why this architecture was chosen
+### Por Que Esta Arquitetura Foi Escolhida
 
-Power BI performs best when it consumes stable analytical entities. Using curated marts and snapshot facts reduces:
+O Power BI funciona melhor quando consome entidades analíticas estáveis. O uso de marts curados e snapshot facts reduz:
 
-- model fragility
-- duplicated transformation logic
-- debugging complexity
-- report maintenance overhead
+- fragilidade do modelo
+- duplicação de lógica de transformação
+- complexidade de troubleshooting
+- esforço de manutenção do report
 
-It also improves:
+Além disso, melhora:
 
-- semantic clarity
-- measure reusability
-- portability of the report
-- confidence in KPI definitions
+- clareza semântica
+- reutilização de measures
+- portabilidade do report
+- confiança nas definições de KPI
 
-## 2. Measure Folder Organization
+## 2. Organização De Pastas De Measures
 
-The project uses a centralized `_Measures` table and separates concerns through display folders.
+O projeto usa uma tabela centralizada `_Measures` e separa as responsabilidades por meio de display folders.
 
-### Current relevant folders
+### Pastas Relevantes
 
-| Folder | Purpose |
+| Folder | Finalidade |
 |---|---|
-| `02 | Networking` | networking and relationship logic |
-| `14 | HTML Content` | page-rendering measures that output HTML/CSS |
-| `15 | Observability` | pipeline health and data quality measures |
-| `16 | Historical Snapshots` | historical and snapshot-driven measures |
+| `02 | Networking` | lógica de networking e relacionamento |
+| `14 | HTML Content` | measures de renderização de páginas em HTML/CSS |
+| `15 | Observability` | measures de saúde do pipeline e data quality |
+| `16 | Historical Snapshots` | measures históricas e orientadas a snapshot |
 
-### Why folders matter
+### Por Que As Pastas Importam
 
-Folder organization is not cosmetic. It helps:
+Organização de folders não é estética. Ela ajuda a:
 
-- keep semantic intent visible
-- separate UX measures from analytical measures
-- reduce ambiguity during maintenance
-- support enterprise-style review and onboarding
+- tornar a intenção semântica visível
+- separar measures de UX de measures analíticas
+- reduzir ambiguidade em manutenção
+- apoiar onboarding e review em contexto corporativo
 
-## 3. HTML Measure Rendering Strategy
+## 3. Estratégia De Rendering Das HTML Measures
 
-The report uses DAX measures that return HTML strings for the Power BI `HTML Content` visual.
+O report usa DAX measures que retornam strings HTML para o visual `HTML Content` do Power BI.
 
-### Rendering model
+### Modelo De Rendering
 
-Each HTML page is a single measure that:
+Cada página HTML é uma measure única que:
 
-1. resolves analytical measures into formatted variables
-2. composes an HTML layout string
-3. embeds CSS inline for portability
-4. rerenders under Power BI filter context
+1. resolve measures analíticas em variáveis formatadas
+2. compõe a string de layout HTML
+3. embute CSS inline para portabilidade
+4. rerenderiza sob o filtro do Power BI
 
-### Why HTML measures were used
+### Por Que HTML Measures Foram Usadas
 
-Native visuals are strong for standard analysis, but they limit high-end layout control. The HTML layer was introduced to provide:
+Os visuais nativos são fortes para análise padrão, mas limitam o controle de layout em nível executivo. A camada HTML foi introduzida para fornecer:
 
-- premium executive headers
-- consistent page-level design systems
-- narrative intelligence cards
-- richer visual hierarchy
-- tighter control of spacing and composition
+- cabeçalhos executivos mais premium
+- design system consistente por página
+- narrative cards
+- hierarquia visual mais rica
+- controle fino de espaçamento e composição
 
-### What HTML measures do not do
+### O Que HTML Measures Não Fazem
 
-- they do not replace semantic modeling
-- they do not introduce independent interaction logic
-- they do not perform computation that should live in analytical measures
-- they do not use JavaScript
+- não substituem semantic modeling
+- não introduzem lógica de interação independente
+- não devem executar computação que deveria ficar em measures analíticas
+- não usam JavaScript
 
-The correct pattern is:
+O padrão correto é:
 
 ```text
 DAX measures compute metrics
@@ -104,13 +104,13 @@ DAX measures compute metrics
 -> slicers and relationships drive the context
 ```
 
-## 4. CSS Layout Decisions
+## 4. Decisões De CSS E Layout
 
-All HTML pages were designed for a constrained Power BI viewport rather than an unconstrained web page.
+Todas as páginas HTML foram desenhadas para um viewport restrito do Power BI, e não para uma página web sem limites.
 
-### Core wrapper strategy
+### Estrutura Base Do Wrapper
 
-The root wrapper pattern is standardized around:
+O padrão do wrapper raiz foi padronizado em torno de:
 
 ```css
 width: 100%;
@@ -120,20 +120,20 @@ overflow: hidden;
 box-sizing: border-box;
 ```
 
-### Why this matters
+### Por Que Isso Importa
 
-The Power BI HTML visual has a fixed container. If the HTML behaves like a normal web page, the result is:
+O visual HTML do Power BI tem um container fixo. Se o HTML se comporta como uma página web comum, o resultado tende a ser:
 
-- vertical scrollbars
-- clipped headers
-- inconsistent visual density
-- broken alignment between pages
+- barras de rolagem verticais
+- cabeçalhos cortados
+- densidade visual inconsistente
+- quebra de alinhamento entre páginas
 
-The wrapper strategy reduces those risks and keeps each page aligned with the report canvas.
+O wrapper reduz esses riscos e mantém cada página alinhada ao canvas do report.
 
-### Design system
+### Design System
 
-The approved Power BI design system is:
+O design system aprovado para Power BI é:
 
 - background: `#0b1220`
 - primary cards: `#111827`
@@ -145,82 +145,82 @@ The approved Power BI design system is:
 - amber warning: `#f59e0b`
 - red critical: `#ef4444`
 
-### Why inline CSS was kept
+### Por Que O CSS Inline Foi Mantido
 
-Inline CSS makes the HTML measures:
+O CSS inline torna as HTML measures:
 
-- self-contained
-- portable inside the semantic model
-- easier to deploy through TOM/XMLA measure updates
+- autocontidas
+- portáveis dentro do semantic model
+- mais fáceis de publicar via updates de measure em TOM/XMLA
 
-The tradeoff is maintainability. To offset that, visual patterns were repeated consistently across measures.
+O tradeoff é manutenção. Para compensar, os padrões visuais foram repetidos com consistência entre as measures.
 
-## 5. Responsive Compaction Strategy
+## 5. Estratégia De Compaction Responsiva
 
-The most difficult UX problem was not styling. It was fit.
+O maior problema de UX não foi styling. Foi fit.
 
-Power BI HTML pages need to remain readable inside a fixed visual height while avoiding internal scrollbars.
+As páginas HTML do Power BI precisam continuar legíveis dentro de uma altura fixa, sem scroll interno.
 
-### Compaction approach
+### Abordagem De Compaction
 
-The final strategy relies on controlled micro-adjustments rather than redesign:
+A estratégia final usa microajustes controlados, e não redesenho estrutural:
 
-- reduce wrapper padding by a few pixels
-- reduce hero height only when necessary
-- reduce vertical gaps selectively
-- compact bottom narrative cards before touching KPI typography
-- avoid exaggerated `min-height`
-- keep `overflow:hidden` in all main wrappers
+- reduzir padding do wrapper alguns pixels
+- reduzir hero height somente quando necessário
+- reduzir gaps verticais de forma seletiva
+- compactar os bottom narrative cards antes de mexer na tipografia dos KPIs
+- evitar `min-height` exagerado
+- manter `overflow:hidden` nos wrappers principais
 
-### Why this approach was chosen
+### Por Que Essa Abordagem Foi Escolhida
 
-The pages serve an executive audience. Aggressive scaling would damage visual credibility. The compaction strategy therefore favors:
+As páginas atendem um público executivo. Escalonamento agressivo prejudicaria credibilidade visual. A estratégia de compaction, portanto, privilegia:
 
-- preserving hierarchy
-- preserving visual identity
-- preserving KPI prominence
-- trimming only the residual non-essential whitespace
+- preservação da hierarquia
+- preservação da identidade visual
+- preservação da proeminência dos KPIs
+- redução apenas do whitespace residual não essencial
 
 ### Tradeoff
 
-This approach is slower than redesigning the pages, but it preserves the approved visual system and avoids rework across the report.
+Essa abordagem é mais lenta do que redesenhar as páginas, mas preserva o visual system aprovado e evita retrabalho no report inteiro.
 
-## 6. Executive UX Decisions
+## 6. Decisões De UX Executiva
 
-The Power BI layer was designed as an enterprise analytics product, not as a default report.
+A camada Power BI foi desenhada como um produto de analytics corporativo, e não como um report padrão.
 
-### UX patterns used
+### Padrões De UX Utilizados
 
-- hero sections with strong visual context
-- compact KPI grids
-- analytical blocks with explicit purpose
-- narrative cards for interpretation
-- governance and observability badges
-- executive microcopy
+- hero sections com contexto visual forte
+- grids de KPI compactos
+- blocos analíticos com propósito explícito
+- narrative cards para interpretação
+- badges de governance e observability
+- microcopy executivo
 
-### Why these choices matter
+### Por Que Essas Escolhas Importam
 
-Executive dashboards are not only about showing numbers. They must:
+Dashboards executivos não servem apenas para mostrar números. Eles precisam:
 
-- establish context immediately
-- reduce interpretation time
-- communicate trust
-- differentiate insight from raw output
+- estabelecer contexto imediatamente
+- reduzir tempo de interpretação
+- comunicar confiança
+- diferenciar insight de output bruto
 
-### Portfolio implications
+### Implicações Para Portfolio
 
-This matters for technical audiences because it demonstrates:
+Isso demonstra:
 
-- semantic discipline
+- disciplina semântica
 - product thinking
-- front-end judgment inside Power BI constraints
-- senior-level control over analytics UX
+- julgamento de front-end dentro das restrições do Power BI
+- controle sênior da UX de analytics
 
-## 7. Snapshot Measures
+## 7. Measures De Snapshot
 
-Historical measures were added under `16 | Historical Snapshots` to enrich the semantic model with trend-aware signals.
+Measures históricas foram adicionadas em `16 | Historical Snapshots` para enriquecer o semantic model com sinais orientados a tendência.
 
-### Examples
+### Exemplos
 
 - `Snapshot Connections`
 - `Snapshot Applications`
@@ -240,187 +240,187 @@ Historical measures were added under `16 | Historical Snapshots` to enrich the s
 - `Actual Snapshot Count`
 - `Simulated Snapshot Count`
 
-### Design philosophy
+### Filosofia De Design
 
-Historical measures were created to:
+As measures históricas foram criadas para:
 
-- compare current and historical behavior
-- enrich page narratives without depending on external APIs
-- preserve governed provenance through snapshot metadata
+- comparar comportamento atual e histórico
+- enriquecer a narrativa das páginas sem depender de APIs externas
+- preservar provenance governada por meio de metadata de snapshot
 
 ### Tradeoff
 
-Snapshot measures improve insight density but increase semantic complexity. That is why they were isolated into their own folder and kept separate from operational observability measures.
+Snapshot measures aumentam a densidade de insight, mas também aumentam a complexidade semântica. Por isso, ficaram isoladas em sua própria pasta e separadas das measures de observability operacional.
 
-## 8. Observability Measures
+## 8. Measures De Observability
 
-Observability measures live under `15 | Observability` and focus on the health of ingestion and data quality.
+As measures de observability ficam em `15 | Observability` e focam na saúde da ingestion e da data quality.
 
-### Core families
+### Famílias Principais
 
 - load counts
-- success and failure rates
+- taxas de sucesso e falha
 - retention rates
-- row removal indicators
-- duplicate alert indicators
-- null rate indicators
-- freshness and latest load indicators
+- indicadores de remoção de linhas
+- indicadores de duplicidade
+- indicadores de null rate
+- indicadores de freshness e latest load
 - composite health scores
 
-### Why this layer exists
+### Por Que Esta Camada Existe
 
-Without observability, the dashboard can display polished KPIs while hiding operational fragility. This layer turns the report into a platform that can defend its own reliability.
+Sem observability, o dashboard pode exibir KPIs bem apresentados enquanto esconde fragilidade operacional. Esta camada transforma o report em uma plataforma que consegue defender sua própria confiabilidade.
 
-### Scalability concern
+### Preocupação De Escala
 
-As observability density grows, the risk is turning a semantic model into an operations console. The separation between governance and observability pages keeps that scope manageable.
+À medida que a densidade de observability cresce, existe o risco de transformar um semantic model em um operations console. A separação entre páginas de governance e de observability mantém esse escopo controlado.
 
-## 9. Governance Measures
+## 9. Measures De Governança
 
-Governance measures are designed to express analytical trust, not only technical status.
+As measures de governança foram desenhadas para expressar analytical trust, e não apenas status técnico.
 
-### Typical governance topics
+### Tópicos Comuns
 
-- read success and failure
+- read success e failure
 - inventory footprint
 - asset freshness
 - quality readiness
 - traceability signals
 - auditability indicators
 
-### Why governance is separate from observability
+### Por Que Governance É Separada De Observability
 
-Observability answers:
+Observability responde:
 
-- what happened in the pipeline
-- where did quality degrade
+- o que aconteceu no pipeline
+- onde a qualidade degradou
 
-Governance answers:
+Governance responde:
 
-- can this data be trusted for executive consumption
-- is the analytical layer operationally ready
+- se esses dados podem ser confiados para consumo executivo
+- se a camada analítica está operationally ready
 
-That separation improves both storytelling and maintainability.
+Essa separação melhora tanto a narrativa quanto a manutenção.
 
-## 10. Performance Optimization Decisions
+## 10. Decisões De Performance
 
-The Power BI layer deliberately avoids using HTML as a computation engine.
+A camada Power BI evita usar HTML como motor de computação.
 
-### Performance rules followed
+### Regras De Performance Seguidas
 
-- compute metrics in dedicated DAX measures first
-- format only the final values inside HTML measures
-- keep relationship design simple and one-directional
-- avoid fact-to-fact relationships
-- consume curated exports instead of raw or excessively wide sources
+- calcular métricas em DAX measures dedicadas primeiro
+- formatar apenas os valores finais dentro das HTML measures
+- manter o desenho de relacionamentos simples e unidirecional
+- evitar fact-to-fact relationships
+- consumir exports curados em vez de fontes brutas ou excessivamente largas
 
-### Why this matters
+### Por Que Isso Importa
 
-HTML measures are expensive to maintain if they also become logic containers. Keeping logic upstream or in analytical measures reduces:
+HTML measures são difíceis de manter quando viram containers de lógica. Manter a lógica upstream ou em measures analíticas reduz:
 
-- debugging time
-- recomputation ambiguity
-- performance regressions under slicer changes
+- tempo de debugging
+- ambiguidade de recomputação
+- regressões de performance sob mudança de slicers
 
-### Related semantic optimizations
+### Otimizações Semânticas Relacionadas
 
-- dedicated date dimension
-- historical snapshot facts separated by subject area
-- helper dimensions for observability filters
-- measures centralized in `_Measures`
+- date dimension dedicada
+- historical snapshot facts separados por subject area
+- helper dimensions para filtros de observability
+- measures centralizadas em `_Measures`
 
-## 11. DAX Design Philosophy
+## 11. Filosofia De DAX
 
-The DAX layer follows a production-minded philosophy.
+A camada DAX segue uma filosofia voltada a produção.
 
-### Principles
+### Princípios
 
-- keep measures explicit
-- use `COALESCE` to avoid unnecessary blanks in executive views
-- separate formatting from arithmetic when practical
-- create synthetic scores only when the logic is explainable
-- prefer semantic clarity over cleverness
+- manter measures explícitas
+- usar `COALESCE` para evitar blanks desnecessários em views executivas
+- separar formatação de aritmética quando possível
+- criar synthetic scores apenas quando a lógica for explicável
+- preferir clareza semântica em vez de esperteza
 
-### Why these principles were chosen
+### Por Que Esses Princípios Foram Escolhidos
 
-Executive reporting requires trust more than novelty. Measures should be:
+Reporting executivo exige confiança mais do que novidade. As measures devem ser:
 
-- inspectable
-- testable
-- maintainable
-- reusable across pages
+- inspecionáveis
+- testáveis
+- mantíveis
+- reutilizáveis entre páginas
 
 ### Tradeoff
 
-Some visual formulas inside HTML measures compute lightweight display scores inline. This is acceptable for UX signals, but the stronger long-term pattern is to progressively externalize reusable scoring logic into analytical measures when reuse increases.
+Algumas fórmulas visuais dentro de HTML measures calculam scores leves de exibição inline. Isso é aceitável para sinais de UX, mas o padrão mais forte no longo prazo é externalizar a lógica reutilizável para measures analíticas quando o reuso aumentar.
 
-## 12. Reusable HTML Block Patterns
+## 12. Padrões Reutilizáveis De Blocos HTML
 
-Although measures are page-specific, they reuse stable UI patterns.
+Embora as measures sejam específicas por página, elas reutilizam padrões estáveis de UI.
 
-### Common patterns
+### Padrões Comuns
 
-- hero header with contextual badges
+- hero header com badges contextuais
 - KPI grid card
 - analytical block card
 - narrative / insight card
 - governance status chip
 - compact metric row
 
-### Why reuse matters
+### Por Que Reuso Importa
 
-Reusable structure keeps the report:
+A reutilização mantém o report:
 
-- visually coherent
-- easier to compact
-- easier to review
-- easier to extend page by page
+- visualmente coerente
+- mais fácil de compactar
+- mais fácil de revisar
+- mais fácil de evoluir página por página
 
-### Maintainability implication
+### Implicação De Manutenção
 
-The more these patterns stay consistent, the easier it becomes to automate updates through measure scripts without visual drift.
+Quanto mais esses padrões permanecerem consistentes, mais fácil fica automatizar updates por meio de scripts de measures sem drift visual.
 
-## 13. Limitations and Workarounds
+## 13. Limitações E Workarounds
 
-### HTML Content limitations
+### Limitações Do HTML Content
 
-- no JavaScript
-- no native internal drill behavior
-- no arbitrary DOM interaction
-- viewport is constrained by the Power BI visual container
+- sem JavaScript
+- sem drill interno nativo
+- sem interação arbitrária com DOM
+- viewport limitado pelo container do visual Power BI
 
-### Workarounds used
+### Workarounds Usados
 
-- external slicers drive context
-- DAX variables drive dynamic text and KPI rendering
-- compact layouts prevent container scroll
-- responsive compaction is done measure-by-measure
+- slicers externos dirigem o contexto
+- variáveis DAX dirigem o texto dinâmico e o rendering dos KPIs
+- layouts compactos evitam scroll no container
+- compaction responsiva é feita measure a measure
 
-### Semantic limitations
+### Limitações Semânticas
 
-- snapshots are only as complete as the underlying event history
-- observability timelines depend on pipeline audit richness
-- the report favors governed executive storytelling over free-form exploration
+- os snapshots são tão completos quanto o histórico de eventos subjacente
+- as timelines de observability dependem da riqueza do audit do pipeline
+- o report favorece narrativa executiva governada em vez de exploração livre
 
-## 14. Future Evolution Ideas
+## 14. Próximas Evoluções Possíveis
 
-- extract common HTML block templates into safer generation utilities
-- add automated semantic validation for HTML measure fit
-- formalize measure linting for folder, description, and formatting compliance
-- extend historical pages to consume more snapshot trends directly
-- improve deployment automation for TOM/XMLA updates
-- add release governance for report UX regression checks
+- extrair templates comuns de blocos HTML para utilitários mais seguros
+- adicionar validação semântica automática para fit das HTML measures
+- formalizar lint de measures para folders, descriptions e formatação
+- expandir páginas históricas para consumir mais trends de snapshot diretamente
+- melhorar automação de deployment para updates via TOM/XMLA
+- adicionar governance de release para regressões de UX do report
 
-## Final Assessment
+## Avaliação Final
 
-The Power BI layer is intentionally positioned as the final semantic and UX layer of an enterprise-style analytics system.
+A camada Power BI é posicionada intencionalmente como a camada final de semântica e UX de um sistema de analytics com mentalidade corporativa.
 
-Its value comes from the combination of:
+O valor vem da combinação de:
 
-- governed upstream data
-- a controlled semantic model
-- premium executive presentation
-- historical intelligence
-- operational observability
+- upstream data governada
+- semantic model controlado
+- apresentação executiva premium
+- inteligência histórica
+- observability operacional
 
-That combination is what makes the report stronger than a standard dashboard and closer to a production-grade analytics product.
+É essa combinação que torna o report mais forte do que um dashboard padrão e mais próximo de um produto analítico de produção.

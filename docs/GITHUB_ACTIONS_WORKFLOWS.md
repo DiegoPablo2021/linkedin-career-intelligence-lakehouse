@@ -1,76 +1,76 @@
-# GitHub Actions Workflows
+# Workflows Do GitHub Actions
 
-## Overview
+## Visão Geral
 
-The repository uses two distinct GitHub Actions workflows:
+O repositório usa dois workflows distintos no GitHub Actions:
 
-- `CI`: code quality and build validation on `push` and `pull_request`
-- `Operational Pipeline`: semi-automated pipeline execution triggered manually with `workflow_dispatch`
+- `CI`: validação de qualidade e build em `push` e `pull_request`
+- `Operational Pipeline`: execução semi-automatizada do pipeline disparada manualmente com `workflow_dispatch`
 
-This split keeps software delivery checks separate from data operations.
+Essa separação mantém os checks de software isolados das operações de dados.
 
-## CI workflow
+## Workflow De CI
 
-File: `.github/workflows/ci.yml`
+Arquivo: `.github/workflows/ci.yml`
 
-Trigger model:
+Modelo de trigger:
 
-- runs on every `push`
-- runs on every `pull_request`
-- does not run on `workflow_dispatch`
+- roda em todo `push`
+- roda em todo `pull_request`
+- não roda em `workflow_dispatch`
 
-Responsibilities:
+Responsabilidades:
 
-- install Python dependencies
-- run `pytest`
-- compile Python packages as a packaging smoke test
-- bootstrap a synthetic DuckDB warehouse
-- run `sqlfluff lint`
-- run `dbt build`
+- instalar dependências Python
+- executar `pytest`
+- compilar os pacotes Python como smoke test de packaging
+- bootstrapar uma DuckDB synthetic warehouse
+- executar `sqlfluff lint`
+- executar `dbt build`
 
-Purpose:
+Objetivo:
 
-- validate code quality
-- validate the dbt project
-- validate repository health without needing private LinkedIn exports
+- validar qualidade de código
+- validar o projeto dbt
+- validar a saúde do repositório sem depender de exports privados do LinkedIn
 
-## Operational pipeline workflow
+## Workflow Operacional
 
-File: `.github/workflows/operational-pipeline.yml`
+Arquivo: `.github/workflows/operational-pipeline.yml`
 
-Trigger model:
+Modelo de trigger:
 
-- runs only through `workflow_dispatch`
+- roda apenas via `workflow_dispatch`
 
-Responsibilities in `manual_exports` mode:
+Responsabilidades no modo `manual_exports`:
 
-1. read manually placed LinkedIn exports from `data/raw`
-2. ingest source files into DuckDB
-3. refresh `bronze.file_inventory`
-4. rebuild dbt staging, intermediate, and marts
-5. rebuild historical snapshots
-6. regenerate Power BI exports
-7. validate observability outputs
-8. upload the generated warehouse and Power BI artifacts
+1. ler os exports manuais do LinkedIn colocados em `data/raw`
+2. ingerir os source files em DuckDB
+3. atualizar `bronze.file_inventory`
+4. reconstruir dbt staging, intermediate e marts
+5. reconstruir snapshots históricos
+6. regenerar exports do Power BI
+7. validar os outputs de observability
+8. publicar a warehouse e os artifacts do Power BI gerados
 
-Responsibilities in `validation_fixture` mode:
+Responsabilidades no modo `validation_fixture`:
 
-1. bootstrap a synthetic validation warehouse
-2. run `dbt build`
-3. rebuild snapshots
-4. export Power BI artifacts
-5. validate observability outputs
-6. upload validation artifacts
+1. bootstrapar uma synthetic validation warehouse
+2. executar `dbt build`
+3. reconstruir snapshots
+4. exportar artifacts do Power BI
+5. validar outputs de observability
+6. publicar os validation artifacts
 
-Purpose:
+Objetivo:
 
-- keep export ingestion manual
-- automate every downstream processing stage
-- support GitHub-hosted validation without exposing private personal exports
+- manter a ingestion dos exports manual
+- automatizar toda a camada downstream
+- suportar validação no GitHub sem expor exports pessoais privados
 
-## Manual export layout
+## Layout Dos Exports Manuais
 
-Recommended structure:
+Estrutura recomendada:
 
 ```text
 data/raw/
@@ -83,42 +83,42 @@ data/raw/
    └─ ...
 ```
 
-Resolution rules:
+Regras de resolução:
 
-- explicit `LINKEDIN_BASIC_EXPORT_DIR` or `LINKEDIN_COMPLETE_EXPORT_DIR` wins
-- otherwise the pipeline scans `data/raw`
-- the latest valid folder matching `basic_export_YYYY_MM_DD` or `complete_export_YYYY_MM_DD` is selected automatically
-- if one type is absent, the resolver tries a compatible fallback directory that still contains the required files
-- if no compatible folder exists, the pipeline fails before ingestion starts
+- `LINKEDIN_BASIC_EXPORT_DIR` ou `LINKEDIN_COMPLETE_EXPORT_DIR` têm prioridade
+- caso contrário, o pipeline varre `data/raw`
+- a pasta válida mais recente que siga `basic_export_YYYY_MM_DD` ou `complete_export_YYYY_MM_DD` é selecionada automaticamente
+- se um tipo estiver ausente, o resolver tenta um fallback compatível que ainda contenha os arquivos necessários
+- se nenhuma pasta compatível existir, o pipeline falha antes de iniciar a ingestion
 
-## Operational UX
+## UX Operacional
 
-The operational runner is designed to be explicit:
+O runner operacional foi desenhado para ser explícito:
 
-- it prints the resolved export directories before starting ingestion
-- it shows whether resolution came from env override, dated discovery, or fallback
-- it prints warnings when a fallback path is being used
-- it keeps local Power BI outputs in a consistent directory and uploads artifacts in GitHub Actions
+- imprime os diretórios de export resolvidos antes de iniciar a ingestion
+- mostra se a resolução veio de env override, dated discovery ou fallback
+- exibe warnings quando um fallback está sendo usado
+- mantém os outputs locais do Power BI em um diretório consistente e publica artifacts no GitHub Actions
 
-## GitHub Actions operational risks
+## Riscos Operacionais No GitHub Actions
 
-The main operational risk in GitHub-hosted Actions is input availability:
+O principal risco operacional em GitHub-hosted Actions é disponibilidade de entrada:
 
-- `manual_exports` requires the export folders to exist in the runner workspace
-- GitHub-hosted runners are ephemeral, so monthly real-data operation usually needs a self-hosted runner or a controlled artifact staging step
-- `validation_fixture` is safe for workflow validation because it does not require private exports
+- `manual_exports` exige que as pastas de export existam no workspace do runner
+- runners hospedados pelo GitHub são efêmeros, então a operação mensal com dados reais normalmente exige um self-hosted runner ou uma etapa controlada de staging de artifacts
+- `validation_fixture` é seguro para validação de workflow porque não requer exports privados
 
-The workflow is therefore ready for monthly continuous operation as long as the exports are staged intentionally before dispatching `manual_exports`.
+O workflow está pronto para operação mensal contínua desde que os exports sejam staged de forma intencional antes de disparar `manual_exports`.
 
-## Recommended usage
+## Uso Recomendado
 
-Local execution with real exports:
+Execução local com exports reais:
 
 ```powershell
 python scripts\run_pipeline.py --mode manual_exports
 ```
 
-Local validation without private exports:
+Validação local sem exports privados:
 
 ```powershell
 python scripts\run_pipeline.py `
@@ -128,15 +128,15 @@ python scripts\run_pipeline.py `
   --powerbi-format both
 ```
 
-GitHub Actions validation:
+Validação no GitHub Actions:
 
-- dispatch `Operational Pipeline`
-- choose `execution_mode=validation_fixture`
-- inspect the uploaded Power BI and DuckDB artifacts
+- dispare `Operational Pipeline`
+- escolha `execution_mode=validation_fixture`
+- inspecione os artifacts publicados do Power BI e do DuckDB
 
-GitHub Actions manual run with real exports:
+Execução manual no GitHub Actions com exports reais:
 
-- use a runner that has the export folders available in the workspace
-- dispatch `Operational Pipeline`
-- set `execution_mode=manual_exports`
-- optionally pass explicit `basic_export_dir` and `complete_export_dir`
+- use um runner que tenha as pastas de export disponíveis no workspace
+- dispare `Operational Pipeline`
+- defina `execution_mode=manual_exports`
+- opcionalmente passe `basic_export_dir` e `complete_export_dir`
