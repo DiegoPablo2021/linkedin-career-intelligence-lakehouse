@@ -48,6 +48,9 @@ jobs:
       - name: Verify Python packages compile
         run: python -m compileall linkedin_career_intelligence scripts tests
 
+      - name: Bootstrap validation warehouse
+        run: python scripts/ci/bootstrap_validation_warehouse.py
+
       - name: Lint SQL models
         run: python -m sqlfluff lint
 
