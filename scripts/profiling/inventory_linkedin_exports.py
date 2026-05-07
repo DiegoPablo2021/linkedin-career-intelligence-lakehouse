@@ -12,7 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from linkedin_career_intelligence.config import get_settings
+from linkedin_career_intelligence.config import ResolvedExportDir, get_settings
 from linkedin_career_intelligence.duckdb_utils import write_dataframe_to_bronze
 
 
@@ -25,20 +25,9 @@ def ensure_output_directories(project_root: Path) -> dict[str, Path]:
     }
 
 
-def get_export_sources(project_root: Path) -> list[dict]:
+def get_export_sources() -> list[ResolvedExportDir]:
     settings = get_settings()
-    return [
-        {
-            "export_name": "Basic_LinkedInDataExport_04-04-2026",
-            "export_type": "basic",
-            "base_path": settings.export_dir("basic"),
-        },
-        {
-            "export_name": "Complete_LinkedInDataExport_04-05-2026",
-            "export_type": "complete",
-            "base_path": settings.export_dir("complete"),
-        },
-    ]
+    return [settings.resolve_export_dir("basic"), settings.resolve_export_dir("complete")]
 
 
 def detect_folder_name(csv_path: Path, base_path: Path) -> str:
@@ -61,6 +50,7 @@ def safe_read_csv_metadata(csv_path: Path) -> dict:
     - sucesso ou erro de leitura
     """
     file_name = csv_path.name.lower()
+    last_error = "Unknown CSV read error"
 
     if file_name == "connections.csv":
         attempts = [
@@ -133,22 +123,23 @@ def safe_read_csv_metadata(csv_path: Path) -> dict:
         "row_count": None,
         "column_count": None,
         "column_names": None,
-        "error_message": last_error, # type: ignore
+        "error_message": last_error,
     }
 
 
 def build_inventory(project_root: Path) -> pd.DataFrame:
-    export_sources = get_export_sources(project_root)
+    export_sources = get_export_sources()
     inventory_rows = []
     inventory_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     for source in export_sources:
-        export_name = source["export_name"]
-        export_type = source["export_type"]
-        base_path = source["base_path"]
+        export_name = source.label
+        export_type = source.export_type
+        base_path = source.path
 
         print(f"\nIniciando varredura do export: {export_name}")
         print(f"Caminho: {base_path}")
+        print(f"Origem da resolucao: {source.source}")
 
         if not base_path.exists():
             print(f"AVISO: caminho não encontrado: {base_path}")
@@ -235,7 +226,7 @@ def save_inventory_files(df_inventory: pd.DataFrame, output_paths: dict[str, Pat
     }
 
 
-def save_inventory_to_duckdb(project_root: Path, df_inventory: pd.DataFrame) -> Path:
+def save_inventory_to_duckdb(df_inventory: pd.DataFrame) -> Path:
     db_path = get_settings().db_path
     write_dataframe_to_bronze(df_inventory, "file_inventory")
     return db_path
@@ -270,7 +261,7 @@ def print_summary(df_inventory: pd.DataFrame, db_path: Path, saved_files: dict[s
     print("=" * 80)
 
 
-def main():
+def main() -> None:
     project_root = get_settings().project_root
     output_paths = ensure_output_directories(project_root)
 
@@ -281,7 +272,7 @@ def main():
         return
 
     saved_files = save_inventory_files(df_inventory, output_paths)
-    db_path = save_inventory_to_duckdb(project_root, df_inventory)
+    db_path = save_inventory_to_duckdb(df_inventory)
     print_summary(df_inventory, db_path, saved_files)
 
 

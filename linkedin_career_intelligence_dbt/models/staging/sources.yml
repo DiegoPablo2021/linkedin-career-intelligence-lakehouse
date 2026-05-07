@@ -395,3 +395,44 @@ sources:
             description: "Título da vaga."
             data_tests:
               - not_null
+
+      - name: ingestion_audit
+        description: "Auditoria operacional da ingestão com métricas de volume, qualidade e contrato."
+
+        columns:
+          - name: table_key
+            description: "Chave lógica da tabela ingerida."
+            data_tests:
+              - not_null
+
+          - name: bronze_table
+            description: "Tabela física na camada bronze."
+            data_tests:
+              - not_null
+
+          - name: export_type
+            description: "Tipo do export de origem."
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values:
+                      - basic
+                      - complete
+
+          - name: source_row_count
+            description: "Quantidade de linhas do arquivo fonte antes da transformação."
+
+          - name: row_count_after_transform
+            description: "Quantidade de linhas persistidas após a transformação."
+
+          - name: duplicate_rows_after_transform
+            description: "Quantidade de duplicatas remanescentes após a transformação."
+
+          - name: null_rate_by_column
+            description: "Mapa JSON com as taxas de null após a transformação."
+
+          - name: loaded_at_utc
+            description: "Timestamp UTC da carga."
+            data_tests:
+              - not_null

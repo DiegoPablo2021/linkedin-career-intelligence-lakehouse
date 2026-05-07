@@ -1,0 +1,93 @@
+name: Operational Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      execution_mode:
+        description: "manual_exports usa os exports mais recentes em data/raw; validation_fixture valida o workflow com dados sinteticos."
+        required: true
+        default: manual_exports
+        type: choice
+        options:
+          - manual_exports
+          - validation_fixture
+      basic_export_dir:
+        description: "Diretorio do export basic para esta execucao. Opcional; sobrescreve a descoberta automatica."
+        required: false
+        default: ""
+        type: string
+      complete_export_dir:
+        description: "Diretorio do export complete para esta execucao. Opcional; sobrescreve a descoberta automatica."
+        required: false
+        default: ""
+        type: string
+      db_path:
+        description: "Banco DuckDB alvo. Opcional; padrao usa warehouse local do runner."
+        required: false
+        default: ""
+        type: string
+      powerbi_output_dir:
+        description: "Diretorio de saida dos artefatos Power BI."
+        required: true
+        default: artifacts/powerbi_exports
+        type: string
+      powerbi_format:
+        description: "Formato da camada exportada para o Power BI."
+        required: true
+        default: both
+        type: choice
+        options:
+          - csv
+          - parquet
+          - both
+
+permissions:
+  contents: read
+
+concurrency:
+  group: operational-pipeline-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  run-operational-pipeline:
+    name: Run Operational Pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute operational pipeline
+        run: >
+          python scripts/run_pipeline.py
+          --mode "${{ inputs.execution_mode }}"
+          --basic-export-dir "${{ inputs.basic_export_dir }}"
+          --complete-export-dir "${{ inputs.complete_export_dir }}"
+          --db-path "${{ inputs.db_path }}"
+          --powerbi-output-dir "${{ inputs.powerbi_output_dir }}"
+          --powerbi-format "${{ inputs.powerbi_format }}"
+
+      - name: Upload Power BI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: powerbi-exports-${{ github.run_id }}
+          path: ${{ inputs.powerbi_output_dir }}
+          if-no-files-found: error
+
+      - name: Upload DuckDB warehouse
+        uses: actions/upload-artifact@v4
+        with:
+          name: operational-warehouse-${{ github.run_id }}
+          path: warehouse/*.duckdb
+          if-no-files-found: warn

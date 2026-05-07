@@ -31,6 +31,45 @@ CSV exportados do LinkedIn
 
 O diagrama no topo do README continua representando o fluxo atual do projeto.
 
+## Operação Mensal
+
+O projeto segue um modelo semi-automatizado:
+
+- o export do LinkedIn continua manual
+- o restante do pipeline pode ser executado localmente ou via `workflow_dispatch`
+- o CI permanece separado do pipeline operacional
+- não existe scraping nem login automático do LinkedIn
+
+### Convenção dos exports
+
+Os novos exports devem ser colocados diretamente em `data/raw`:
+
+```text
+data/raw/
+├─ basic_export_2026_05_07/
+│  ├─ Profile.csv
+│  ├─ Positions.csv
+│  └─ ...
+└─ complete_export_2026_05_07/
+   ├─ Connections.csv
+   ├─ Jobs/Job Applications.csv
+   └─ ...
+```
+
+O pipeline detecta automaticamente a pasta mais recente válida de cada tipo. Se um dos tipos estiver ausente, o resolvedor tenta um fallback compatível; se nenhum diretório utilizável for encontrado, a execução falha antes da ingestão.
+
+## Monthly LinkedIn Refresh Workflow
+
+1. Exporte seus dados do LinkedIn manualmente.
+2. Extraia os arquivos para `data/raw/basic_export_YYYY_MM_DD` e `data/raw/complete_export_YYYY_MM_DD`.
+3. Execute o workflow `Operational Pipeline` no GitHub Actions via `workflow_dispatch` ou rode o script local.
+4. O pipeline resolve automaticamente os exports mais recentes.
+5. O DuckDB é atualizado com a nova ingestão.
+6. Os marts do dbt são reconstruídos.
+7. Os exports do Power BI são regenerados em diretório consistente.
+8. Os snapshots históricos são atualizados.
+9. As validações finais confirmam que os outputs operacionais estão íntegros.
+
 ## Domínios já cobertos
 
 - Profile
@@ -157,13 +196,23 @@ streamlit run apps\Home.py
 ### 5. Rodar tudo de ponta a ponta
 
 ```powershell
-python scripts\run_pipeline.py
+python scripts\run_pipeline.py --mode manual_exports
 ```
 
 ### 6. Rodar a validação completa de engenharia
 
 ```powershell
 python scripts\run_validation.py
+```
+
+### 7. Validar o fluxo operacional sem exports privados
+
+```powershell
+python scripts\run_pipeline.py `
+  --mode validation_fixture `
+  --db-path tmp/local-validation.duckdb `
+  --powerbi-output-dir tmp/powerbi_exports `
+  --powerbi-format both
 ```
 
 Esse fluxo executa:
