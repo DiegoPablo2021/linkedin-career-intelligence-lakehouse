@@ -2,7 +2,18 @@ name: CI
 
 on:
   push:
+    paths-ignore:
+      - "README.md"
+      - "docs/**"
   pull_request:
+    paths-ignore:
+      - "README.md"
+      - "docs/**"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONUNBUFFERED: "1"
 
 permissions:
   contents: read
@@ -14,6 +25,7 @@ jobs:
     env:
       LINKEDIN_DUCKDB_PATH: ${{ github.workspace }}/warehouse/linkedin_career_intelligence_validation.duckdb
       LINKEDIN_DB_PATH: ${{ github.workspace }}/warehouse/linkedin_career_intelligence_validation.duckdb
+      CI_POWERBI_OUTPUT_DIR: ${{ github.workspace }}/tmp/ci_powerbi_exports
 
     steps:
       - name: Checkout
@@ -36,14 +48,13 @@ jobs:
       - name: Verify Python packages compile
         run: python -m compileall linkedin_career_intelligence scripts tests
 
-      - name: Bootstrap validation warehouse
-        run: python scripts/ci/bootstrap_validation_warehouse.py
-
       - name: Lint SQL models
-        run: sqlfluff lint
+        run: python -m sqlfluff lint
 
-      - name: Build dbt project
+      - name: Run fixture validation pipeline
         run: >
-          dbt build
-          --project-dir linkedin_career_intelligence_dbt
-          --profiles-dir profiles
+          python scripts/run_pipeline.py
+          --mode validation_fixture
+          --db-path "${{ env.LINKEDIN_DB_PATH }}"
+          --powerbi-output-dir "${{ env.CI_POWERBI_OUTPUT_DIR }}"
+          --powerbi-format both

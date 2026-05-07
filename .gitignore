@@ -32,6 +32,8 @@ data/exports/
 *.wal
 *.tmp
 warehouse/
+tmp/
+artifacts/
 
 # Jupyter
 .ipynb_checkpoints/
