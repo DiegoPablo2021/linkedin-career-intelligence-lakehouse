@@ -7,6 +7,7 @@ import json
 import pandas as pd
 import pytest
 
+from linkedin_career_intelligence import config as config_module
 from linkedin_career_intelligence.config import ProjectSettings, get_settings
 from linkedin_career_intelligence.contracts import TableContract, assert_contract, validate_contract
 from linkedin_career_intelligence.duckdb_utils import connect_duckdb, write_dataframe
@@ -107,12 +108,21 @@ def test_transform_skills_removes_duplicate_and_blank_rows() -> None:
     ]
 
 
-def test_settings_points_to_warehouse_database(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_settings_falls_back_to_demo_database_when_warehouse_is_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.delenv("LINKEDIN_DB_PATH", raising=False)
     monkeypatch.delenv("LINKEDIN_DUCKDB_PATH", raising=False)
+    monkeypatch.setattr(config_module, "get_project_root", lambda: tmp_path)
+    (tmp_path / "demo").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "demo" / "linkedin_career_intelligence_demo.duckdb").write_text(
+        "demo",
+        encoding="utf-8",
+    )
+
     settings = get_settings()
-    assert settings.db_path.name == "linkedin_career_intelligence.duckdb"
-    assert settings.db_path.parent.name == "warehouse"
+    assert settings.db_path.name == "linkedin_career_intelligence_demo.duckdb"
+    assert settings.db_path.parent.name == "demo"
 
 
 def test_write_dataframe_supports_append_mode(tmp_path: Path) -> None:
