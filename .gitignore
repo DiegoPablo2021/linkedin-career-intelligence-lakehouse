@@ -48,6 +48,7 @@ Thumbs.db
 .streamlit-app-*.log
 
 # Power BI local validation artifacts
+*.pbix
 *_validation.json
 *_probe.json
 *_diagnostics.json
