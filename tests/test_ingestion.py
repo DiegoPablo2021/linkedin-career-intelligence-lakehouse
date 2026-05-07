@@ -327,6 +327,7 @@ def build_temp_settings(tmp_path: Path) -> ProjectSettings:
         project_root=project_root,
         data_dir=data_dir,
         raw_dir=data_dir / "raw",
+        manual_exports_dir=data_dir / "raw" / "linkedin_exports",
         warehouse_dir=warehouse_dir,
         demo_dir=demo_dir,
         db_path=default_db_path,

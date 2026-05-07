@@ -358,6 +358,8 @@ def build_validation_tables() -> dict[str, pd.DataFrame]:
                     "source_file": "Profile.csv",
                     "source_path": "synthetic/Profile.csv",
                     "export_type": "basic",
+                    "row_count": 1,
+                    "column_count": 13,
                     "source_row_count": 1,
                     "source_column_count": 13,
                     "row_count_after_transform": 1,

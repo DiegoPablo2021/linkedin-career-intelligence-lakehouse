@@ -300,6 +300,63 @@ This approach is used to:
 
 For the technical implementation details, see [docs/POWERBI_LAYER.md](docs/POWERBI_LAYER.md).
 
+## GitHub Actions Operating Model
+
+The repository now uses a split workflow model:
+
+- `CI` runs only on `push` and `pull_request`
+- `Operational Pipeline` runs only by `workflow_dispatch`
+- raw LinkedIn export ingestion remains manual
+- all downstream processing stays automated after the exports are placed in the repository workspace
+
+### Manual export drop zone
+
+Place new LinkedIn exports directly under `data/raw` using this naming convention:
+
+```text
+data/raw/
+├─ basic_export_2026_05_07/
+│  ├─ Profile.csv
+│  ├─ Positions.csv
+│  └─ ...
+└─ complete_export_2026_05_07/
+   ├─ Connections.csv
+   ├─ Jobs/Job Applications.csv
+   └─ ...
+```
+
+The pipeline scans `data/raw`, detects the latest valid directory for each export type automatically, and uses fallback discovery if one type is temporarily absent. You can still override both paths with `LINKEDIN_BASIC_EXPORT_DIR` and `LINKEDIN_COMPLETE_EXPORT_DIR`.
+
+### Workflow responsibilities
+
+- `CI`: tests, Python compile checks, SQL lint, and `dbt build` against a synthetic validation warehouse
+- `Operational Pipeline`: ingestion, inventory refresh, DuckDB refresh, dbt marts, Power BI exports, historical snapshots, and observability validation
+
+Detailed workflow documentation lives in [docs/GITHUB_ACTIONS_WORKFLOWS.md](docs/GITHUB_ACTIONS_WORKFLOWS.md).
+
+## Monthly LinkedIn Refresh Workflow
+
+This project is designed for monthly semi-automated operation. The LinkedIn export remains manual and everything after that is automated.
+
+### Step-by-step operational flow
+
+1. Export your LinkedIn data manually from LinkedIn.
+2. Extract the exported files into `data/raw/basic_export_YYYY_MM_DD` and `data/raw/complete_export_YYYY_MM_DD`.
+3. Trigger the GitHub Actions `Operational Pipeline` with `workflow_dispatch` or run `python scripts\run_pipeline.py --mode manual_exports` locally.
+4. The pipeline resolves the most recent valid export folders automatically.
+5. Bronze ingestion updates the DuckDB warehouse.
+6. dbt rebuilds staging, intermediate models, and marts.
+7. Power BI exports are regenerated in a consistent output directory.
+8. Historical snapshots are rebuilt and validated.
+9. Final observability and output validation confirms the refresh completed successfully.
+
+### Operational notes
+
+- If one export type is missing, the resolver tries a compatible fallback folder that still contains the required files.
+- If no compatible folder exists, the pipeline fails early with a clear message.
+- Local operational exports default to `powerbi/exports`.
+- GitHub Actions can publish artifacts to a separate directory such as `artifacts/powerbi_exports`.
+
 ## Key Technical Highlights
 
 - governed Python ingestion with explicit schema contracts
@@ -323,6 +380,7 @@ linkedin-career-intelligence-lakehouse/
 ├─ demo/                              # Sanitized public demo database
 ├─ docs/
 │  ├─ images/                         # Architecture and dashboard visuals
+│  ├─ GITHUB_ACTIONS_WORKFLOWS.md     # CI and operational workflow documentation
 │  └─ POWERBI_LAYER.md                # Technical Power BI documentation
 ├─ linkedin_career_intelligence/      # Python package: config, ingestion, contracts, DuckDB helpers
 ├─ linkedin_career_intelligence_dbt/
@@ -421,19 +479,18 @@ Install and run locally:
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python scripts\run_ingestion.py
-python scripts\profiling\inventory_linkedin_exports.py
-cd linkedin_career_intelligence_dbt
-dbt build --profiles-dir ..\profiles
-cd ..
-python scripts\run_pipeline.py
+python scripts\run_validation.py
+python scripts\run_pipeline.py --mode manual_exports
 ```
 
-Power BI export layer:
+Validate the operational workflow locally without private exports:
 
 ```powershell
-python scripts\utils\export_powerbi_layer.py
-python scripts\powerbi\export_snapshot_tables.py
+python scripts\run_pipeline.py `
+  --mode validation_fixture `
+  --db-path tmp/local-validation.duckdb `
+  --powerbi-output-dir tmp/powerbi_exports `
+  --powerbi-format both
 ```
 
 ## Author

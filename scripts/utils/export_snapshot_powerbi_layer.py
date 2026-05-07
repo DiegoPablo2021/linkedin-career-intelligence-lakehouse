@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -239,8 +240,23 @@ def export_specs(
     return summary
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Exporta a camada historica de snapshots para consumo do Power BI."
+    )
+    parser.add_argument(
+        "--output-dir",
+        default="powerbi/exports",
+        help="Diretorio de saida dos arquivos de snapshot.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
-    output_dir = PROJECT_ROOT / "powerbi" / "exports"
+    args = parse_args()
+    output_dir = Path(args.output_dir)
+    if not output_dir.is_absolute():
+        output_dir = PROJECT_ROOT / output_dir
     summary = export_specs(EXPORT_SPECS, output_dir)
     print(json.dumps(summary, indent=2, ensure_ascii=False))
 

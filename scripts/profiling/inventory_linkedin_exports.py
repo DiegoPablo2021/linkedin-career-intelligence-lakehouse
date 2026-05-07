@@ -12,7 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from linkedin_career_intelligence.config import get_settings
+from linkedin_career_intelligence.config import ResolvedExportDir, get_settings
 from linkedin_career_intelligence.duckdb_utils import write_dataframe_to_bronze
 
 
@@ -25,20 +25,9 @@ def ensure_output_directories(project_root: Path) -> dict[str, Path]:
     }
 
 
-def get_export_sources() -> list[dict[str, Path | str]]:
+def get_export_sources() -> list[ResolvedExportDir]:
     settings = get_settings()
-    return [
-        {
-            "export_name": "Basic_LinkedInDataExport_04-04-2026",
-            "export_type": "basic",
-            "base_path": settings.export_dir("basic"),
-        },
-        {
-            "export_name": "Complete_LinkedInDataExport_04-05-2026",
-            "export_type": "complete",
-            "base_path": settings.export_dir("complete"),
-        },
-    ]
+    return [settings.resolve_export_dir("basic"), settings.resolve_export_dir("complete")]
 
 
 def detect_folder_name(csv_path: Path, base_path: Path) -> str:
@@ -144,12 +133,13 @@ def build_inventory(project_root: Path) -> pd.DataFrame:
     inventory_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     for source in export_sources:
-        export_name = source["export_name"]
-        export_type = source["export_type"]
-        base_path = source["base_path"]
+        export_name = source.label
+        export_type = source.export_type
+        base_path = source.path
 
         print(f"\nIniciando varredura do export: {export_name}")
         print(f"Caminho: {base_path}")
+        print(f"Origem da resolucao: {source.source}")
 
         if not base_path.exists():
             print(f"AVISO: caminho não encontrado: {base_path}")

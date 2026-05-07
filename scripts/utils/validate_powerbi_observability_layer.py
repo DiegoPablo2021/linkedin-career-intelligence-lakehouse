@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 import sys
@@ -8,7 +9,6 @@ import pandas as pd
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-EXPORTS_DIR = PROJECT_ROOT / "powerbi" / "exports"
 
 REQUIRED_FILES = {
     "dCalendario": "dim_date.parquet",
@@ -50,9 +50,26 @@ def load_frame(path: Path) -> pd.DataFrame:
     return pd.read_parquet(path)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Valida os artefatos de observability exportados para o Power BI."
+    )
+    parser.add_argument(
+        "--exports-dir",
+        default="powerbi/exports",
+        help="Diretorio contendo os arquivos exportados para a camada do Power BI.",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
+    args = parse_args()
+    exports_dir = Path(args.exports_dir)
+    if not exports_dir.is_absolute():
+        exports_dir = PROJECT_ROOT / exports_dir
+
     result: dict[str, object] = {
-        "exports_dir": str(EXPORTS_DIR),
+        "exports_dir": str(exports_dir),
         "files_found": {},
         "missing_files": [],
         "column_validation": {},
@@ -78,7 +95,7 @@ def main() -> int:
     }
 
     for logical_name, file_name in REQUIRED_FILES.items():
-        path = EXPORTS_DIR / file_name
+        path = exports_dir / file_name
         exists = path.exists()
         result["files_found"] = {
             **result["files_found"],
